@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        #board {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .cell {
+            background: white;
+            border: 2px solid #4CAF50;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        .highlight {
+            background: #FFF3E0;
+            transform: scale(1.1);
+            border-color: #FF9800;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        #explain {
+            background: #E8F5E9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="board">
+        <h2>大衍求一术动画教学（解 7x ≡ 1 mod 15）</h2>
+        <div class="grid" id="grid"></div>
+        <div>
+            <button onclick="prevStep()">◀ 上一步</button>
+            <button onclick="nextStep()">下一步 ▶</button>
+            <button onclick="reset()">🔄 重新开始</button>
+        </div>
+        <div id="explain"></div>
+    </div>
+
+<script>
+// 教学步骤数据
+const steps = [
+    {
+        title: "第1步：初始化",
+        cells: ["天元一1", "衍数7", "商0", "定母15"],
+        explain: "置右上为7（衍数），右下为15（定母），左上设天元一1"
+    },
+    {
+        title: "第2步：第一次除法",
+        cells: ["1", "7", "商2", "余1"],
+        explain: "15 ÷ 7 = 2 余1，记录商数2到左下"
+    },
+    {
+        title: "第3步：调整余数",
+        cells: ["1+2×6=13", "余1", "商6", "新余1"],
+        explain: "强制调整余数：7 = 1×6 +1，商6乘原商数2得12，加到左上"
+    },
+    {
+        title: "得到解",
+        cells: ["解x=13", "余1", "验证通过", "7×13=91≡1 mod15"],
+        explain: "右上出现1时终止，最终解x=13，验证：7×13=91，91除以15余1"
+    }
+];
+
+let currentStep = 0;
+
+// 生成网格单元格
+function createGrid() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = steps[currentStep].cells.map(cell => 
+        `<div class="cell">${cell}</div>`
+    ).join("");
+    
+    // 添加动态效果
+    grid.children[1].classList.add("highlight"); // 高亮衍数
+    grid.children[3].classList.add("highlight"); // 高亮定母
+}
+
+// 更新说明
+function updateExplain() {
+    const explain = document.getElementById("explain");
+    explain.innerHTML = `
+        <h3>${steps[currentStep].title}</h3>
+        <p>${steps[currentStep].explain}</p>
+    `;
+}
+
+// 步骤控制
+function nextStep() {
+    if(currentStep < steps.length-1) currentStep++;
+    createGrid();
+    updateExplain();
+}
+
+function prevStep() {
+    if(currentStep > 0) currentStep--;
+    createGrid();
+    updateExplain();
+}
+
+function reset() {
+    currentStep = 0;
+    createGrid();
+    updateExplain();
+}
+
+// 初始化
+createGrid();
+updateExplain();
+</script>
+</body>
+</html>

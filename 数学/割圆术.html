@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>交互式割圆术演示</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        
+        #canvas {
+            background-color: white;
+            border: 2px solid #333;
+            margin: 20px;
+        }
+        
+        .control-panel {
+            display: grid;
+            grid-template-columns: 120px 100px auto;
+            gap: 10px;
+            align-items: center;
+            margin: 15px;
+        }
+        
+        input {
+            padding: 8px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        #result {
+            font-size: 18px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            min-width: 300px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>割圆术 - π计算器</h2>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    
+    <div class="control-panel">
+        <label>边数 (≥3):</label>
+        <input type="number" id="sidesInput" min="3" value="6" step="1">
+        <button onclick="updateCalculation()">计算</button>
+    </div>
+    
+    <div id="result">π ≈ 3.0000000</div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const radius = 200;  // 圆半径
+        const center = { x: canvas.width/2, y: canvas.height/2 };
+
+        // 初始化绘制
+        drawCircle();
+        drawPolygon(6);
+
+        function drawCircle() {
+            ctx.beginPath();
+            ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.6)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function drawPolygon(sides) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCircle();
+            
+            ctx.beginPath();
+            for (let i = 0; i <= sides; i++) {
+                const angle = (i * 2 * Math.PI)/sides - Math.PI/2;
+                const x = center.x + radius * Math.cos(angle);
+                const y = center.y + radius * Math.sin(angle);
+                
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = 'rgba(0, 0, 255, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function calculatePi(sides) {
+            // 使用高精度计算：周长 / 直径
+            const sideLength = 2 * radius * Math.sin(Math.PI / sides);
+            return (sideLength * sides) / (2 * radius);
+        }
+
+        function updateCalculation() {
+            const input = document.getElementById('sidesInput');
+            let sides = parseInt(input.value);
+            
+            // 输入验证
+            if (isNaN(sides) || sides < 3) {
+                sides = 3;
+                input.value = 3;
+            }
+            
+            drawPolygon(sides);
+            const piApprox = calculatePi(sides);
+            document.getElementById('result').textContent = 
+                `π ≈ ${piApprox.toFixed(7)}`;
+        }
+
+        // 添加实时输入监听
+        document.getElementById('sidesInput').addEventListener('input', () => {
+            const value = document.getElementById('sidesInput').value;
+            if (value >= 3) updateCalculation();
+        });
+    </script>
+</body>
+</html>

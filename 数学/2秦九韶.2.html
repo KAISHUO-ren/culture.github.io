@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>数学九章分类图</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            position: relative;
+        }
+        #network-container {
+            width: 100%;
+            height: 600px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .tooltip {
+            position: absolute;
+            padding: 8px;
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 12px;
+        }
+        .ancient-text-right {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #f9f3e6;
+            border-left: 3px solid #8b4513;
+            padding: 20px;
+            font-family: "KaiTi", "楷体", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #5d3f1c;
+            text-align: justify;
+            max-width: 300px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .ancient-text-left {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #f9f3e6;
+            border-right: 3px solid #8b4513;
+            padding: 20px;
+            font-family: "KaiTi", "楷体", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #5d3f1c;
+            text-align: justify;
+            max-width: 300px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="network-container"></div>
+    <div class="tooltip" style="opacity:0;"></div>
+    <div class="ancient-text-right">
+        <p>这是秦九韶唯一的数学著作，但仅此就使他成为中国宋元时期杰出的数学家之一。</p>
+    </div>
+    <div class="ancient-text-left">
+        <p>主要内容如下：<br>
+        ⑴大衍类：一次同余式组解法。<br>
+        ⑵天时类：历法计算、降水量。<br>
+        ⑶田域类：土地面积。<br>
+        ⑷测望类：勾股、重差。<br>
+        ⑸赋役类：均输、税收。<br>
+        ⑹钱谷类：粮谷转运、仓窖容积。<br>
+        ⑺营建类：建筑、施工。<br>
+        ⑻军族类：营盘布置、军需供应。<br>
+        ⑼市物类：交易、利息。</p>
+    </div>
+
+<script>
+// 节点数据
+const nodes = [
+    { id: "《数书九章》", type: "著作", size: 40, color: "#2c7bb6" }, // 中心节点
+    { id: "大衍", type: "介绍大衍求一术", size: 28, color: "#2ca02c" },
+    { id: "天时", type: "历法推算、降水量计算", size: 28, color: "#2ca02c" },
+    { id: "田域", type: "土地面积", size: 28, color: "#2ca02c" },
+    { id: "测望", type: "勾股重差", size: 28, color: "#2ca02c" },
+    { id: "赋役", type: "“均输”及税收", size: 28, color: "#2ca02c" },
+    { id: "钱谷", type: "粮谷转运与仓库容积", size: 28, color: "#2ca02c" },
+    { id: "营建", type: "工程施工", size: 28, color: "#2ca02c" },
+    { id: "军旅", type: "营房设置与军需供应", size: 28, color: "#2ca02c" },
+    { id: "市易", type: "商品交易与利息", size: 28, color: "#2ca02c" }
+];
+
+// 连线数据（所有类别都连接到中心节点）
+const links = [
+    { source: "《数书九章》", target: "大衍" },
+    { source: "《数书九章》", target: "天时" },
+    { source: "《数书九章》", target: "田域" },
+    { source: "《数书九章》", target: "测望" },
+    { source: "《数书九章》", target: "赋役" },
+    { source: "《数书九章》", target: "钱谷" },
+    { source: "《数书九章》", target: "营建" },
+    { source: "《数书九章》", target: "军旅" },
+    { source: "《数书九章》", target: "市易" }
+];
+
+// ========== 网络图可视化 ==========
+const width = 1200, height = 600;
+const svg = d3.select("#network-container")
+  .append("svg")
+  .attr("width", "100%")
+  .attr("height", height)
+  .attr("viewBox", [0, 0, width, height]);
+
+const simulation = d3.forceSimulation(nodes)
+  .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+  .force("charge", d3.forceManyBody().strength(-300))
+  .force("center", d3.forceCenter(width / 2, height / 2));
+
+// 绘制连线
+const link = svg.append("g")
+  .selectAll("line")
+  .data(links)
+  .join("line")
+  .attr("stroke", "#999")
+  .attr("stroke-width", 1)
+  .attr("stroke-opacity", 0.6);
+
+// 绘制节点
+const node = svg.append("g")
+  .selectAll("circle")
+  .data(nodes)
+  .join("circle")
+  .attr("r", d => d.size)
+  .attr("fill", d => d.color)
+  .attr("stroke", "#fff")
+  .attr("stroke-width", 1.5);
+
+// 节点标签
+const label = svg.append("g")
+  .selectAll("text")
+  .data(nodes)
+  .join("text")
+  .text(d => d.id)
+  .attr("font-size", d => d.type === "著作" ? 16 : 14) // 中心节点字体稍大
+  .attr("text-anchor", "middle") // 文字居中
+  .attr("dy", ".35em") // 垂直居中
+  .style("user-select", "none")
+  .style("fill", "#333") // 字体颜色
+  .style("font-weight", "500"); // 字体加粗
+
+// 更新位置
+simulation.on("tick", () => {
+    link.attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+    node.attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+    label.attr("x", d => d.x)
+         .attr("y", d => d.y);
+});
+
+// 交互提示
+node.on("mouseover", function(event, d) {
+    d3.select(this).transition().duration(100).attr("r", d.size * 1.2);
+    d3.select(".tooltip")
+      .style("opacity", 1)
+      .html(`${d.id}<br>具体信息：${d.type}`)
+      .style("left", `${event.pageX + 15}px`)
+      .style("top", `${event.pageY - 28}px`);
+}).on("mouseout", function(event, d) {
+    d3.select(this).transition().duration(100).attr("r", d.size);
+    d3.select(".tooltip").style("opacity", 0);
+});
+
+// 初始化布局
+setTimeout(() => {
+    simulation.alpha(0.1).restart();
+    svg.transition().duration(1000).attr("viewBox", [-100, -100, width + 200, height + 200]);
+}, 500);
+
+// 响应式调整
+window.onresize = () => {
+    svg.attr("width", document.getElementById("network-container").offsetWidth);
+};
+</script>
+</body>
+</html>

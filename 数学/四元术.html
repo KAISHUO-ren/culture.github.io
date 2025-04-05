@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>四元术消元过程演示</title>
+    <style>
+        :root {
+            --primary-color: #ff6347;
+            --secondary-color: #ffa500;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .animation-container {
+            width: 800px;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .equation-stage {
+            height: 400px;
+            position: relative;
+            border: 2px dashed #eee;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .equation {
+            position: absolute;
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .equation.active {
+            opacity: 1;
+            transform: translateY(0);
+            z-index: 2;
+        }
+
+        .equation.highlight {
+            box-shadow: 0 0 0 3px var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .variable {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .step-indicator {
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255,99,71,0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(255,99,71,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,99,71,0); }
+        }
+
+        .highlight {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="animation-container">
+        <div class="step-indicator">步骤 <span id="step">1</span>/7</div>
+        <div class="equation-stage">
+            <!-- 初始化方程组 -->
+            <div class="equation" data-step="1" style="left: 50px; top: 50px;">
+                天 + 地 + 人 + 物 = 10
+            </div>
+            <div class="equation" data-step="1" style="left: 50px; top: 120px;">
+                天² - 地 + 人 - 物 = 5
+            </div>
+
+            <!-- 消元过程 -->
+            <div class="equation" data-step="2" style="left: 300px; top: 50px;">
+                物 = 10 - 天 - 地 - 人
+            </div>
+            <div class="equation" data-step="3" style="left: 300px; top: 120px;">
+                天² - 地 + 人 - (10 - 天 - 地 - 人) = 5
+            </div>
+            <div class="equation" data-step="4" style="left: 300px; top: 190px;">
+                天² + 天 + 2地 + 2人 = 15
+            </div>
+
+            <!-- 代入结果 -->
+            <div class="equation" data-step="5" style="left: 550px; top: 50px;">
+                地 = (15 - 天² - 天 - 2人)/2
+            </div>
+            <div class="equation" data-step="6" style="left: 550px; top: 120px;">
+                代入原方程组得三式
+            </div>
+            <div class="equation" data-step="7" style="left: 550px; top: 190px;">
+                最终解：天=2，地=3，人=1，物=4
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="previousStep()">上一步</button>
+            <button onclick="toggleAutoPlay()">自动播放</button>
+            <button onclick="nextStep()">下一步</button>
+        </div>
+    </div>
+
+<script>
+    let currentStep = 1;
+    let totalSteps = 7;
+    let autoPlayInterval = null;
+
+    function updateDisplay() {
+        // 更新所有方程显示状态
+        document.querySelectorAll('.equation').forEach(eq => {
+            const step = parseInt(eq.dataset.step);
+            eq.classList.toggle('active', step <= currentStep);
+            eq.classList.toggle('highlight', step === currentStep);
+        });
+
+        // 更新步骤指示器
+        document.getElementById('step').textContent = currentStep;
+    }
+
+    function nextStep() {
+        if (currentStep < totalSteps) {
+            currentStep++;
+            updateDisplay();
+        }
+    }
+
+    function previousStep() {
+        if (currentStep > 1) {
+            currentStep--;
+            updateDisplay();
+        }
+    }
+
+    function toggleAutoPlay() {
+        if (!autoPlayInterval) {
+            autoPlayInterval = setInterval(() => {
+                if (currentStep < totalSteps) {
+                    nextStep();
+                } else {
+                    clearInterval(autoPlayInterval);
+                    autoPlayInterval = null;
+                }
+            }, 2500);
+        } else {
+            clearInterval(autoPlayInterval);
+            autoPlayInterval = null;
+        }
+    }
+
+    // 初始化显示
+    updateDisplay();
+</script>
+</body>
+</html>

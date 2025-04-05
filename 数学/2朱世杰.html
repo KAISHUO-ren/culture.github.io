@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>朱世杰 - 著名数学家</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .left-panel {
+            width: 30%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .left-panel img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .left-panel img:hover {
+            transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .right-panel {
+            margin-left: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-left: 40px; /* Space from fixed left panel */
+        }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .timeline-item:hover::before {
+            background-color: #ff4500;
+        }
+        .timeline-content {
+            transition: all 0.3s ease;
+            transform-origin: left center;
+            opacity: 0.95;
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            opacity: 1;
+        }
+        .books-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .book-info {
+            width: 45%;
+        }
+        .book-info img {
+            max-width: 100%;
+            height: auto;
+        }
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        .book-images img {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .book-images img:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .left-panel ul li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .left-panel ul li:hover {
+            background-color: rgba(255,99,71,0.1);
+            transform: translateX(5px);
+        }
+
+/* 时间轴点动画 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .timeline-item::before {
+            animation: pulse 2s infinite;
+        }
+        .timeline-item:hover::before {
+            animation: none;
+            transform: scale(1.3);
+        }
+
+        /* 优化原有过渡效果 */
+        .timeline-item::before {
+            transition: all 0.3s ease;
+        }
+         /* 优化时间轴样式 */
+         .timeline::before {
+            background: linear-gradient(to bottom, #ff6347 0%, #ffa500 100%);
+        }
+        .timeline-item::before {
+            background: #ff6347;
+            box-shadow: 0 0 10px rgba(255,99,71,0.5);
+        }
+        .timeline-content {
+            border-radius: 12px;
+            background: rgba(255,255,255,0.95);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+
+        /* 增强脉冲动画 */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        .timeline-item::before {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* 选项卡样式 */
+        .content-tabs {
+            margin: 40px 0;
+            position: relative;
+        }
+        .tab-labels {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .tab-label {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: #f8f9fa;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .tab-label:hover {
+            transform: translateY(-3px);
+            background: linear-gradient(135deg, #ff6347, #ffa500);
+            color: white;
+            box-shadow: 0 6px 12px rgba(255,99,71,0.3);
+        }
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+        input[name="tab"]:checked + .tab-label {
+            background: linear-gradient(135deg, #ff6347, #ffa500);
+            color: white;
+        }
+        #tab1:checked ~ .tab-content1,
+        #tab2:checked ~ .tab-content2,
+        #tab3:checked ~ .tab-content3 {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 著作书籍样式优化 */
+        .books-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        .books-section:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        /* 新增其他成就样式 */
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .achievement-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .achievement-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(255,99,71,0.15);
+        }
+    </style>
+</head>
+<body>
+
+<div class="left-panel">
+    <img src="images/A朱世杰.jpg" alt="朱世杰"
+            style="width: 300px;height: 400px;object-fit:cover;border-radius:8px;">
+        <h2>朱世杰 - 著名数学家</h2>
+        <h2>主要成就</h2>
+    <ul>
+        <li>数学著作：《算学启蒙》、《四元玉鉴》</li>
+        <li>数学创新：四元术、招差术、无理方程</li>
+    </ul>
+</div>
+
+<div class="right-panel">
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1249年</h3>
+                <p>出生于燕山（今北京），字汉卿，号松庭。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>青少年时期</h3>
+                <p>朱世杰对数学产生浓厚兴趣，遍读北方算学家的著作，尤其是李冶的《测圆海镜》，对其数学思想产生深远影响。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1270年代</h3>
+                <p>朱世杰已经成为北方知名的算学家，开始学习和研究李德载的二元术和刘大鉴的三元术，掌握建立和解二元、三元高次方程组的方法。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1279年</h3>
+                <p>元灭南宋，统一中国。朱世杰来到南方游学，结识南方数学家，接触南方算书，如秦九韶的《数书九章》和杨辉的著作，吸收先进的数学思想和方法。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1299年</h3>
+                <p>朱世杰的数学著作《算学启蒙》刊行于世。该书是一部通俗数学名著，分三卷，内容由浅入深，循序渐进，包括了各类乘除法歌诀、面积和体积计算、分数运算等，对后世数学发展产生深远影响。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1303年</h3>
+                <p>朱世杰的另一部重要数学著作《四元玉鉴》刊行。该书标志着中国古代数学在宋元时期达到了最高峰，其中最杰出的数学创造是四元术（多元高次方程组的建立和求解方法），以及垛积法（高阶等差级数求和）与招差术（高次内插法）。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1314年</h3>
+                <p>朱世杰逝世，其数学成就和教育理念对中国古代数学史产生深远影响。</p >
+            </div>
+        </div>
+    </div>
+
+    <div class="content-tabs">
+        <input type="radio" name="tab" id="tab1" checked>
+        <input type="radio" name="tab" id="tab2">
+        <input type="radio" name="tab" id="tab3">
+        
+        <div class="tab-labels">
+            <label class="tab-label" for="tab1">著作书籍</label>
+            <label class="tab-label" for="tab2">发明发现</label>
+            <label class="tab-label" for="tab3">其他成就</label>
+        </div>
+
+        <!-- 著作书籍 -->
+        <div class="tab-content tab-content1">
+            <!-- 原有书籍内容 -->
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>著作书籍---《算学启蒙》</h2>
+                    <p>该书于1299年刊行，分三卷，共二十门，259问。内容由浅入深，循序渐进，从一位数的乘法开始，涵盖了各类乘除法歌诀、面积和体积计算、算术问题、分数运算、垛积法、盈不足术等。书中明确提出了正负数乘法法则，给出了倒数的概念和基本性质，概括了新的乘法公式和根式运算法则，总结了乘除捷算口诀，并把设辅助未知数的方法用于解线性方程组。此外，还介绍了天元术，并给出了一些实际问题的应用。该书是一部通俗数学名著，对后世的数学教育产生了深远影响，并流传至海外，影响了朝鲜、日本等国的数学发展。
+                        </p >
+                </div>
+                <div class="book-images">
+                    <img src="images/A算学启蒙.png" alt="《算学启蒙》"
+                    style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                    
+                </div>
+            </div>
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>著作书籍---《四元玉鉴》</h2>
+                    <p>该书于1303年刊行，是朱世杰的代表作，也是中国宋元数学高峰的标志之一。全书共三卷，二十四门，二百八十八问，详细阐述了朱世杰在多元高次方程组解法、高阶等差级数求和以及高次内插法等方面的研究成果。其中最杰出的数学创造是四元术，即多元高次方程组的建立和求解方法。此外，书中还介绍了高阶等差级数的计算——“垛积术”以及“招差术”即有限差分等方面的研究成果。该书代表了宋元数学的最高水平，对后世的数学研究产生了重要影响。
+                        </p >
+                </div>
+                <div class="book-images">
+                    <img src="images/A四元玉鉴.png" alt="《四元玉鉴》"
+                    style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                    
+                </div>
+            </div>
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>发明发现---四元术</h2>
+                    <p>朱世杰在天元术的基础上发展出了四元术，即列出四元高次多项式方程，并采用消元法求解。这种方法在世界上长期处于领先地位，直到18世纪法国数学家贝祖提出一般的高次方程组解法，才超过朱世杰。四元术的创立，标志着中国古代数学在方程理论方面达到了新的高度。
+                        </p >
+                </div>
+                <div class="book-images">
+                    <img src="images/A四元术.jpg" alt="《四元术》"
+                    style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                        
+                </div>
+            </div>
+        </div>
+
+        <!-- 发明发现 -->
+        <div class="tab-content tab-content2">
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>四元术体系（天元术的突破性发展）</h2>
+                    <div class="technical-details">
+                        <h3>核心原理</h3>
+                        <p>通过建立四元高次方程组，解决包含四个未知数的复杂数学问题。其核心突破体现在：</p>
+                        <ul>
+                            <li><strong>符号系统创新</strong>：使用「天、地、人、物」四元代表未知数（现代数学符号X,Y,Z,W）</li>
+                            <li><strong>方程构建</strong>：将实际问题转化为四元多项式方程，如：
+                                <div class="equation">
+                                    <span>天<sup>3</sup> + 地<sup>2</sup> - 人 + 物 = 0</span>
+                                </div>
+                            </li>
+                            <li><strong>消元算法</strong>：创造性的"互隐通分相消"法，分三步实现多元消元：
+                                <ol>
+                                    <li>逐次相消（类似高斯消元法）</li>
+                                    <li>代入消元（建立辅助方程）</li>
+                                    <li>终式求根（得到单一未知数的方程）</li>
+                                </ol>
+                            </li>
+                        </ul>
+            
+                        <h3>技术突破</h3>
+                        <div class="breakthrough">
+                            <div class="comparison">
+                                <div class="column">
+                                    <h4>传统天元术（单未知数）</h4>
+                                    <ul>
+                                        <li>仅处理单变量方程</li>
+                                        <li>最高次数：14次</li>
+                                        <li>应用范围：几何问题</li>
+                                    </ul>
+                                </div>
+                                <div class="column">
+                                    <h4>朱世杰四元术</h4>
+                                    <ul>
+                                        <li>处理四元28次方程组</li>
+                                        <li>《四元玉鉴》案例：三元三次→四元四次</li>
+                                        <li>应用扩展：天文、建筑、商业</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+            
+                        <h3>历史地位</h3>
+                        <div class="historical-significance">
+                            <ul>
+                                <li>时间领先：比欧洲多元方程理论早400余年</li>
+                                <li>算法优势：建立系统的消元理论体系</li>
+                                <li>现存最早：完整保存的四元术文献</li>
+                            </ul>
+                            <blockquote>
+                                "其解四元高次方程组之法，实为代数学史上重要里程碑" —— 李约瑟《中国科学技术史》
+                            </blockquote>
+                        </div>
+                    </div>
+                </div>
+                <div class="book-images">
+                    <a href="四元术.html" target="_blank">
+                        <img src="images/AAA四元术.png" alt="四元术消元过程图解" 
+                             style="width: 350px;border-radius:12px;border: 2px solid #ff6347;">
+                    </a>
+                    <p class="image-caption">点击查看动态消元过程演示</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 其他成就 -->
+        <div class="tab-content tab-content3">
+            <div class="achievement-grid">
+                <div class="achievement-card">
+                    <h3>数学教育创新</h3>
+                    <p>首创"问题-解法-原理"三位一体的数学教学体系，影响后世数学教育模式</p>
+                </div>
+                <div class="achievement-card">
+                    <h3>算法普及</h3>
+                    <p>将天元术简化推广，使高次方程解法得以广泛应用到工程计算领域</p>
+                </div>
+                <div class="achievement-card">
+                    <h3>国际影响</h3>
+                    <p>《四元玉鉴》经丝绸之路传入阿拉伯地区，影响了中世纪伊斯兰数学发展</p>
+                </div>
+                <div class="achievement-card">
+                    <h3>商业数学</h3>
+                    <p>发展复利计算和商品流通的数学模型，推动元代商业数学发展</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

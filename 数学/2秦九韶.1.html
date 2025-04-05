@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《数学九章》可视化</title>
+    <style>
+        /*《数书九章》*/
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+        .category {
+            width: 200px;
+            height: 200px;
+            margin: 10px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .category-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .category:hover .category-inner {
+            transform: rotateY(180deg);
+        }
+        .category-front, .category-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .category-front {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .category-back {
+            background-color: #f1f1f1;
+            color: #333;
+            transform: rotateY(180deg);
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="category">
+        <div class="category-inner">
+            <div class="category-front">大衍</div>
+            <div class="category-back">有一些物品，按3个一组分组剩2个，按5个一组分组剩3个，按7个一组分组剩2个，这些物品有多少个</div>
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-inner">
+            <div class="category-front">天时</div>
+            <div class="category-back">问今州郡都有天池盆，以测雨水。但知以盆中之水为得雨之数，不知器形不同，则受雨多少亦异，未可以所测，便为平地得雨之数。</div>
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-inner">
+            <div class="category-front">田域</div>
+            <div class="category-back">问有沙田一段，有三斜，其小斜一十三里，中斜一十四里，大斜一十五里，里法三百步。欲知为田几何。</div>
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-inner">
+            <div class="category-front">测望</div>
+            <div class="category-back">测望类中有一道关于测量佛塔高度的题目：“表望浮图”。用标杆（“表”）测量佛塔（梵语称为“浮图”）。标杆上部有刻度，经过两次用表测望，计算出佛塔高度等问题，以便修复已倾斜的佛塔。</div>
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-inner">
+            <div class="category-front">赋役</div>
+            <div class="category-back">问有沙田一段，有三斜，其小斜一十三里，中斜一十四里，大斜一十五里，里法三百步。欲知为田几何。</div>
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-inner">
+            <div class="category-front">钱谷</div>
+            <div class="category-back">问有米铺诉被盗去米一般三箩，皆适满，不记细数。今左壁箩剩一合，中间箩剩一升四合，右壁箩剩一合。后获贼甲、乙、丙三名。甲称当夜摸得马杓，在左壁箩满舀入布袋；乙称踢着木履，在中箩舀入袋；丙称摸得漆碗，在右壁箩舀入袋。索到三器，马杓容满一升九合，木履容一升七合，漆碗容一升二合。欲知所失米数，三盗各几何？</div>
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-inner">
+            <div class="category-front">营建</div>
+            <div class="category-back">问有堤长一百二十里，高四丈，阔三丈，用土若干？</div>
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-inner">
+            <div class="category-front">军旅</div>
+            <div class="category-back">问有营盘，方一千步，欲令马军二千五百骑分布其中，每骑占地四步，纵横相间，各得几何？</div>
+        </div>
+    </div>
+
+    <div class="category">
+        <div class="category-inner">
+            <div class="category-front">市易</div>
+            <div class="category-back">问有米麦各若干石，欲以米换麦，麦换米，其价不等。米每石价若干，麦每石价若干，今欲使米麦相易后，价值相等，问各换几何？</div>
+        </div>
+    </div>
+
+</body>
+</html>

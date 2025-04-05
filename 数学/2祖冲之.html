@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>祖冲之 - 南北朝时期著名数学家</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .left-panel {
+            width: 30%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .left-panel img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .left-panel img:hover {
+            transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .right-panel {
+            margin-left: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-left: 40px; /* Space from fixed left panel */
+        }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .timeline-item:hover::before {
+            background-color: #ff4500;
+        }
+        .timeline-content {
+            transition: all 0.3s ease;
+            transform-origin: left center;
+            opacity: 0.95;
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            opacity: 1;
+        }
+        .books-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .book-info {
+            width: 45%;
+        }
+        .book-info img {
+            max-width: 100%;
+            height: auto;
+        }
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        .book-images img {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .book-images img:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .left-panel ul li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .left-panel ul li:hover {
+            background-color: rgba(255,99,71,0.1);
+            transform: translateX(5px);
+        }
+
+/* 时间轴点动画 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .timeline-item::before {
+            animation: pulse 2s infinite;
+        }
+        .timeline-item:hover::before {
+            animation: none;
+            transform: scale(1.3);
+        }
+
+        /* 优化原有过渡效果 */
+        .timeline-item::before {
+            transition: all 0.3s ease;
+        }
+        /* 新增选项卡样式 */
+        .content-tabs {
+            margin: 40px 0;
+            position: relative;
+        }
+        .tab-labels {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .tab-label {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: #f8f9fa;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .tab-label:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(255,99,71,0.3);
+        }
+        input[name="tab"] { display: none; }
+        input[name="tab"]:checked + .tab-label {
+            background: linear-gradient(135deg, #ff6347, #ffa500);
+            color: white;
+        }
+        .tab-content { display: none; }
+        #tab1:checked ~ .tab-content1,
+        #tab2:checked ~ .tab-content2,
+        #tab3:checked ~ .tab-content3 {
+            display: block;
+        }
+
+        /* 割圆术专项样式 */
+        .cutting-method {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+        }
+        .method-steps {
+            counter-reset: step-counter;
+        }
+        .method-step {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 20px;
+        }
+        .method-step::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            width: 28px;
+            height: 28px;
+            background: #ff6347;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+        }
+
+        /* 其他成就样式 */
+        .achievement-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .achievement-card {
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .achievement-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(255,99,71,0.15);
+        }
+
+        /* 优化原有悬停效果 */
+        .book-images img:hover {
+            transform: scale(1.08) rotate(3deg);
+        }
+    </style>
+</head>
+<body>
+
+
+<div class="left-panel">
+    <img src="images/A祖冲之.jpg" 
+            style="width: 300px;height: 400px;object-fit:cover;border-radius:8px;">
+    <h2>主要成就</h2>
+    <ul>
+        <li>圆周率的精确计算：祖冲之在前人研究的基础上，首次将圆周率精确计算到小数点后第七位，即在3.1415926和3.1415927之间。这一成就不仅在当时世界上处于领先地位，而且这一纪录保持了近千年，直到15世纪才被阿拉伯数学家卡西打破。<br></li>
+        <li>祖冲之著有《缀术》一书，该书被收入《算经十书》，并在唐代被列为国子监教材。然而，由于该书内容深奥，后世未能广泛流传。但尽管如此，《缀术》在数学史上的地位仍然不可忽视。</li>
+        <li>勾股定理的发展：祖冲之在几何领域也有着显著的贡献。他提出了与勾股定理相关的观点，即一个任意形状的立体都可以被一些平行于底面的平面所截成一系列的梯形。</li>
+    </ul>
+</div>
+
+<div class="right-panel">
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>公元429年</h3>
+                <p>出生于建康（今南京），祖籍范阳郡遒县（今河北涞水县）。他生活在一个世代研究天文学的家族中，自幼便受到浓厚的学术氛围熏陶。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>公元450年至公元5世纪末</h3>
+                <p>在这一阶段，祖冲之进行了深入的数学研究，取得了多项重要成就，包括首次将圆周率精确计算到小数点后第七位，对《九章算术》等古代数学著作进行注解，并提出了自己的数学见解和理论。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>公元500年</h3>
+                <p>在这一阶段，祖冲之的数学理论逐渐成熟，并撰写了《缀术》一书。虽然该书内容深奥，后世未能广泛流传，但它在数学史上的地位仍然不可忽视。同时，他的数学思想和理论也开始在学术界传播，对后世数学研究产生了深远影响。</p >
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增切换模块 -->
+    <div class="content-tabs">
+        <input type="radio" name="tab" id="tab1" checked>
+        <input type="radio" name="tab" id="tab2">
+        <input type="radio" name="tab" id="tab3">
+        
+        <div class="tab-labels">
+            <label class="tab-label" for="tab1">数学著作</label>
+            <label class="tab-label" for="tab2">割圆术</label>
+            <label class="tab-label" for="tab3">其他成就</label>
+        </div>
+
+        <!-- 数学著作 -->
+        <div class="tab-content tab-content1">
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>著作书籍---《缀术》</h2>
+                    <p>内容：汇集了祖冲之父子的数学研究成果，内容深奥。
+                        影响：被收入《算经十书》，唐代时被列为国子监教材，但因内容深奥而未能广泛流传。该书曾经传至朝鲜和日本，但到北宋时已轶失。
+                        </p >
+                </div>
+                <div class="book-images">
+                    <img src="images/A缀述.png"     
+                    style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                    
+                </div>
+            </div>
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>著作书籍---《九章算术》及注解</h2>
+                    <p>祖冲之不仅研究了《九章算术》这一古代数学名著，还为其作了详细注解。这些注解不仅有助于后世学者理解《九章算术》的内容，还展示了祖冲之在数学上的独特见解和深厚功底。
+                        注解内容：祖冲之的注解涉及对《九章算术》中算法、公式、定理的详细解释和推导，以及对一些数学问题的深入分析和解答。这些注解对于后世学者来说，是理解古代数学著作的重要参考资料。</p >
+                </div>
+                <div class="book-images">
+                    <img src="images/A九章算术.jpg"     
+                    style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                    
+                </div>
+            </div>
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>发明发现---数学理论的创新与发展</h2>
+                    <p>内容：祖冲之在数学研究中提出了许多新的数学理论和见解。例如，他在研究数列时提出了关于等差数列和等比数列的定理和推断；在研究几何时提出了关于圆、直线、多边形等几何图形的性质和定理；在研究方程时提出了关于方程的解法和根的性质等。
+                        <br>
+                        影响：祖冲之提出的这些数学理论和见解不仅在当时具有先进性，而且对后世数学的发展产生了深远影响。他的工作不仅为中国古代数学的发展做出了重要贡献，也为世界数学的发展做出了积极贡献。
+                        </p >
+                </div>
+                <div class="book-images">
+                    <img src="images/A数学方法.jpg" 
+                    style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                    
+                </div>
+            </div>
+            <!-- 其他著作部分... -->
+        </div>
+
+        <!-- 割圆术 -->
+        <div class="tab-content tab-content2">
+            <div class="cutting-method">
+                <div class="method-steps">
+                    <h2>祖冲之在前人的基础上利用割圆术计算圆周率</h2>
+                    <div class="method-step">
+                        <h3>初始正六边形</h3>
+                        <p>从圆内接正六边形开始，直径取2尺，周长6尺</p>
+                    </div>
+                    <div class="method-step">
+                        <h3>逐次倍增边数</h3>
+                        <p>通过公式aₙ=√[2-√(4-a²ₙ₋₁)]计算边长，边数达到24576边</p>
+                    </div>
+                    <div class="method-step">
+                        <h3>极限逼近</h3>
+                        <p>计算正12288边形和正24576边形的周长平均值</p>
+                    </div>
+                </div>
+                <div class="method-visual">
+                    <a href="割圆术.html" class="image-link">
+                        <img src="images/AAA割圆术.png" alt="割圆术示意图" 
+                            style="width: 100%;border-radius:12px;">
+                            </a>
+                    <div class="formula-box">
+                        <p>核心公式：π ≈ (C₁+C₂)/2D</p>
+                        <p>其中C为多边形周长，D为直径</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 其他成就 -->
+        <div class="tab-content tab-content3">
+            <div class="achievement-cards">
+                <div class="achievement-card">
+                    <h3>天文历法</h3>
+                    <p>编制《大明历》，首次引入岁差概念（45年11月差1°）</p>
+                </div>
+                <div class="achievement-card">
+                    <h3>机械制造</h3>
+                    <p>复原指南车，发明水碓磨、千里船等实用机械</p>
+                </div>
+                <div class="achievement-card">
+                    <h3>文学成就</h3>
+                    <p>著《述异记》十卷，文学作品《安边论》阐述治国理念</p>
+                </div>
+                <div class="achievement-card">
+                    <h3>音乐理论</h3>
+                    <p>精通音律，参与制定"新律"音乐体系</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

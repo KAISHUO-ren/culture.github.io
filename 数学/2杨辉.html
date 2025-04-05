@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>杨辉 - 著名数学家</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .left-panel {
+            width: 30%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .left-panel img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .left-panel img:hover {
+            transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .right-panel {
+            margin-left: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-left: 40px; /* Space from fixed left panel */
+        }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .timeline-item:hover::before {
+            background-color: #ff4500;
+        }
+        .timeline-content {
+            transition: all 0.3s ease;
+            transform-origin: left center;
+            opacity: 0.95;
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            opacity: 1;
+        }
+        .books-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .book-info {
+            width: 45%;
+        }
+        .book-info img {
+            max-width: 100%;
+            height: auto;
+        }
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        .book-images img {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .book-images img:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .left-panel ul li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .left-panel ul li:hover {
+            background-color: rgba(255,99,71,0.1);
+            transform: translateX(5px);
+        }
+
+/* 时间轴点动画 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .timeline-item::before {
+            animation: pulse 2s infinite;
+        }
+        .timeline-item:hover::before {
+            animation: none;
+            transform: scale(1.3);
+        }
+
+        /* 优化原有过渡效果 */
+        .timeline-item::before {
+            transition: all 0.3s ease;
+        }
+        /* 新增切换模块样式 */
+        .content-tabs {
+            margin-top: 40px;
+            position: relative;
+        }
+        .content-tabs input[type="radio"] { display: none; }
+        .tab-labels {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .tab-label {
+            padding: 12px 30px;
+            border-radius: 30px;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .tab-label:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255,99,71,0.3);
+            background: #ff6347;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+        #tab1:checked ~ .tab-content1,
+        #tab2:checked ~ .tab-content2,
+        #tab3:checked ~ .tab-content3 {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* 优化原有悬停效果 */
+        .left-panel img:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+        }
+        .timeline-content:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+        }
+        /* 新增内容区块样式 */
+        .triangle-section {
+            display: flex;
+            gap: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+        }
+        .triangle-text { flex: 1; }
+        .triangle-image { flex: 1; text-align: center; }
+        .triangle-image a {
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+        .triangle-image a:hover {
+            transform: rotate(2deg) scale(1.05);
+        }
+        .invention-list {
+            columns: 2;
+            column-gap: 30px;
+        }
+        .invention-list li {
+            break-inside: avoid;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        .invention-list li:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(255,99,71,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="left-panel">
+    <img src="images/A杨辉.jpg" alt="杨辉"
+            style="width: 300px;height: 400px;object-fit:cover;border-radius:8px;">
+        <h2>杨辉 - 著名数学家</h2>
+        <h2>主要成就</h2>
+    <ul>
+        <li>杨辉三角：杨辉在研究二项式系数的过程中，独立发现了与帕斯卡三角形相似的三角形阵列，即现在所称的“杨辉三角”。</li>
+        <li>纵横图（幻方）的研究：
+            杨辉对纵横图（幻方）进行了深入的研究，并提出了多种构造方法。</li>
+        <li>算法的创新：
+            杨辉在数学算法方面也有创新，他提出了多种快速计算的方法，如“九归除法”等。</li>
+        <li>对算盘的推广：
+            杨辉在著作中详细描述了算盘的使用方法和运算规则，为算盘的普及和推广做出了贡献。</li>
+        <li>详解九章算法》：
+            杨辉对《九章算术》进行了详细的注释和解释，使这部古代数学名著更加易于理解和传承。</li>
+    </ul>
+</div>
+
+<div class="right-panel">
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>早年时期</h3>
+                <p>出生于临安（今杭州）</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1261年左右</h3>
+                <p>杨辉完成了他的重要数学著作《详解九章算法》12卷。该书对《九章算术》进行了详细的解释和补充，展示了他在数学上的深厚功底。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1262年左右</h3>
+                <p>杨辉撰写了《日用算法》2卷，旨在普及日常所用的数学知识，并提出了“用法必载源流”和“命题须责实有”的原则。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1261年至1275年间</h3>
+                <p>杨辉在台州、苏州等地担任地方官，业余时间深入研究数学，并在此期间完成了《乘除通变本末》、《田亩比类乘除捷法》多部数学著作。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>晚年时期</h3>
+                <p>杨辉的晚年生活具体细节已难以考证。但他的数学著作和思想通过朝鲜、日本等国的译本传播至世界，对后世数学家产生了深远影响。</p >
+            </div>
+        </div>
+    </div>
+
+    <div class="content-tabs">
+        <div class="tab-labels">
+            <label class="tab-label" for="tab1">著作及发明</label>
+            <label class="tab-label" for="tab2">杨辉三角</label>
+            <label class="tab-label" for="tab3">其他发明</label>
+        </div>
+        
+        <input type="radio" name="content-tab" id="tab1" checked>
+        <input type="radio" name="content-tab" id="tab2">
+        <input type="radio" name="content-tab" id="tab3">
+
+        <div class="tab-content tab-content1">
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>著作书籍---《详解九章算法》</h2>
+                    <p>内容：该书共12卷，是对《九章算术》的详细解释和补充。杨辉在其中不仅保留了《九章算术》的原文，还添加了自己的见解和注释，使得《九章算术》的内容更加丰富和易于理解。
+                        <br>
+                        贡献：杨辉在书中载入了表示二项式(a+b)n展开系数的数字三角形，即“杨辉三角”。这一发现揭示了二项式系数之间的关系，为组合数学、概率论等领域的研究提供了重要工具。同时，他也是世界上第一个排出此三角形的数学家，比国外同类发现至少早300年
+                        </p >
+                </div>
+                <div class="book-images">
+                    <img src="images/A详解九章算法.png" alt="《详解九章算法》"
+                    style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                    
+                </div>
+            </div>
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>著作书籍---《续古摘奇算法》</h2>
+                    <p>内容：该书共2卷，是杨辉后期的数学著作。他在其中介绍了各种形式的“纵横图”（即幻方）及有关的构造方法，同时继续研究了“垛积术”。
+                        <br>
+                        贡献：杨辉是世界上第一个系统研究幻方构成规律的数学家。他的研究成果打破了幻方的神秘性，为幻方的研究和发展做出了重要贡献。同时，他的垛积术研究也推动了高阶等差级数求和的研究和发展。
+                        </p >
+                </div>
+                <div class="book-images">
+                    <img src="images/A《续古摘奇算法》.png" alt="《续古摘奇算法》"
+                    style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                    
+                </div>
+            </div>
+            
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>发明发现---筹算乘除捷算法</h2>
+                    <p>杨辉对筹算乘除捷算法进行了总结和发展，有的还编成了歌诀，如九归口诀。这些算法在当时具有先进性，大大提高了人们的运算速度。
+                        <br>
+                        意义：杨辉的快速计算方法不仅加快了人们的运算速度，还为数学计算提供了更加高效和准确的方法。同时，他的歌诀也使得数学知识更加易于记忆和理解。
+                        </p >
+                </div>
+                <div class="book-images">
+                    <img src="images/A算法.jpg" alt="《算法》"
+                    style="width: 250px;height: 300px;object-fit:cover;border-radius:8px;">
+                    
+                </div>
+            </div>
+        </div>
+        <!-- 杨辉三角内容 -->
+        <div class="tab-content tab-content2">
+            <div class="triangle-section">
+                <div class="triangle-text">
+                    <h2>杨辉三角</h2>
+                    <p>杨辉三角，又称贾宪三角，是二项式系数在三角形中的一种几何排列...</p>
+                    <p>性质特点：</p>
+                    <ul>
+                        <li>每行数字左右对称，由1开始逐渐变大</li>
+                        <li>第n行的数字有n项</li>
+                        <li>第n行的m个数可表示为 C(n-1,m-1)</li>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>点击图片看详情
+                    </ul>
+                </div>
+                <div class="triangle-image">
+                    <a href="杨辉三角.html" target="_blank">
+                        <img src="images/A杨辉三角.png" alt="杨辉三角图示" 
+                            style="width: 400px;height: 300px;border-radius:12px;">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 其他发明内容 -->
+        <div class="tab-content tab-content3">
+            <h2>其他数学贡献</h2>
+            <ul class="invention-list">
+                <li>
+                    <h3>纵横图研究</h3>
+                    <p>系统研究幻方构造法，给出三至十阶幻方的具体构造方法</p>
+                </li>
+                <li>
+                    <h3>垛积术</h3>
+                    <p>创立高阶等差级数求和公式，为级数理论奠定基础</p>
+                </li>
+                <li>
+                    <h3>改进乘除运算</h3>
+                    <p>发展"以加代乘"和"以减代除"的算法，极大提高计算效率</p>
+                </li>
+                <li>
+                    <h3>测量技术</h3>
+                    <p>提出"重差术"测量方法，完善传统测量理论体系</p>
+                </li>
+                <li>
+                    <h3>数学教育</h3>
+                    <p>首创数学口诀教学法，编写《习算纲目》教学大纲</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+</body>
+</html>

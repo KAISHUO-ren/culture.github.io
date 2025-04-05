@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>梅文鼎学术成就可视化 - 清代数学天文学大家展示</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+       .left-panel {
+            width: 28%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+       .left-panel img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+       .left-panel img:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+       .right-panel {
+            margin-left: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-left: 40px;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+       .person-timeline {
+            position: relative;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+       .person-timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+
+       .person-timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+            animation: fadeInLeft 1s ease both;
+        }
+
+       .person-timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            animation: pulse 2s infinite;
+        }
+
+       .person-timeline-item:hover::before {
+            background-color: #ff4500;
+            animation: none;
+            transform: scale(1.3);
+        }
+
+       .person-timeline-content {
+            transition: all 0.3s ease;
+            transform-origin: left center;
+            opacity: 0.95;
+        }
+
+       .person-timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            opacity: 1;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+       .person-video-container {
+            position: relative;
+            width: 100%;
+            height: auto;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+       .person-video-container video {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+       .timeline-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            position: relative;
+            animation: fadeInUp 1s ease both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+       .timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            padding: 20px 0;
+        }
+
+       .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: #ccc;
+            z-index: 1;
+        }
+
+       .timeline-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 2;
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: slideIn 0.5s ease both;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+       .timeline-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+       .description {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+       .description.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        #flowchart {
+            width: 100%;
+            height: 290px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            position: relative;
+        }
+
+       .left-panel ul li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+       .left-panel ul li:hover {
+            background-color: rgba(255, 99, 71, 0.1);
+            transform: translateX(5px);
+        }
+
+       .dynamic-text-container {
+            position: relative;
+            height: 200px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+       .dynamic-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            white-space: pre-line;
+            animation: float 3s ease-in-out infinite;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(-50%, -50%) translateY(0);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) translateY(-20px);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) translateY(0);
+            }
+        }
+
+       .seasons-video-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+       .seasons-video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+       .seasons-video-container .dynamic-text {
+            z-index: 2;
+        }
+
+       .info-container {
+            margin-top: 20px;
+            position: relative;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+       .info-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+       .info-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+            text-align: justify;
+        }
+
+       .info-content p {
+            margin-bottom: 10px;
+        }
+
+       .info-content .highlight {
+            color: #ff6347;
+            font-weight: bold;
+        }
+
+       .info-content .section {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ddd;
+        }
+
+       .info-content .section:last-child {
+            border-bottom: none;
+        }
+
+       .info-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            color: #ff6347;
+        }
+
+       .flowchart-explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+       .flowchart-explanation h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+       .flowchart-explanation p {
+            line-height: 1.6;
+        }
+
+       .flowchart-explanation .highlight {
+            color: #ff6347;
+            font-weight: bold;
+        }
+
+       .classical-text {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+       .classical-text p {
+            margin: 10px 0;
+        }
+
+       .classical-text .highlight {
+            color: #ff6347;
+            font-weight: bold;
+        }
+
+       .classical-text-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #ff6347;
+        }
+
+       .tooltip {
+            position: absolute;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="left-panel">
+        <div class="person-video-container">
+            <video id="person-video" width="100%" height="auto" controls>
+                <source src="images/梅文鼎.mp4" type="video/mp4">
+            </video>
+        </div>
+        <img src="images/梅文鼎.jpg" style="width: 300px;height: 600px;object-fit:cover;border-radius:8px;">
+        <h2>梅文鼎 - 清代数学天文学大家</h2>
+        <ul>
+            <li>📜 学术著作：著有《历算全书》等多部数学、天文学著作</li>
+            <li>🧮 数学成就：对中国传统数学进行深入研究与发展</li>
+            <li>🌌 天文学贡献：融合中西天文学知识，推动天文学发展</li>
+            <li>📚 学术传承：培养众多学者，对后世学术产生深远影响</li>
+        </ul>
+    </div>
+
+    <div class="right-panel">
+        <div class="person-timeline">
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>1633年</h3>
+                    <p>梅文鼎出生于安徽宣城一个书香门第家庭</p>
+                </div>
+            </div>
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>青年时期</h3>
+                    <p>勤奋好学，对天文、数学产生浓厚兴趣，开始自学相关知识</p>
+                </div>
+            </div>
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>中年时期</h3>
+                    <p>深入研究中西学术，撰写多部学术著作，逐渐成为知名学者</p>
+                </div>
+            </div>
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>1721年</h3>
+                    <p>梅文鼎逝世，其所著著作流传后世，成为学术经典</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-container">
+            <div class="seasons-video-container">
+                <video id="seasons-video" loop muted>
+                    <source src="images/梅文鼎.mp4" type="video/mp4">
+                </video>
+                <div class="dynamic-text">
+                    学贯中西，融会古今。
+                    数理天文，熠熠生辉。
+                    学术传承，源远流长。
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-line"></div>
+                <div class="timeline-item" data-index="0">数学成就</div>
+                <div class="timeline-item" data-index="1">天文学贡献</div>
+                <div class="timeline-item" data-index="2">学术著作</div>
+                <div class="timeline-item" data-index="3">学术传承</div>
+            </div>
+
+            <div class="description" data-index="0">
+                <h3>数学成就</h3>
+                <p><strong>数量：</strong>众多</p>
+                <p><strong>作用：</strong>对中国传统数学如勾股定理、方程理论等进行深入研究与发展</p>
+            </div>
+            <div class="description" data-index="1">
+                <h3>天文学贡献</h3>
+                <p><strong>数量：</strong>显著</p>
+                <p><strong>作用：</strong>融合中西天文学知识，对历法推算、天体测量等方面有重要贡献</p>
+            </div>
+            <div class="description" data-index="2">
+                <h3>学术著作</h3>
+                <p><strong>数量：</strong>多部</p>
+                <p><strong>作用：</strong>总结和传播学术知识，为后世研究提供重要参考</p>
+            </div>
+            <div class="description" data-index="3">
+                <h3>学术传承</h3>
+                <p><strong>数量：</strong>培养众多学者</p>
+                <p><strong>作用：</strong>推动学术发展，形成学术流派</p>
+            </div>
+        </div>
+
+        <div class="timeline-container">
+            <div id="chart-container" style="width: 100%; height: 300px;"></div>
+            <div class="classical-text">
+                <div class="classical-text-icon">📖</div>
+                <p>“数者，理之易见者也。”</p>
+                <p>“天学有中法、西法，二者不可偏废。”</p>
+                <p>“学无止境，当博采众长。”</p>
+            </div>
+        </div>
+
+        <div class="timeline-container">
+            <h2 style="text-align: center;">学术领域关联关系</h2>
+            <div id="network-container" style="width: 100%; height: 400px;"></div>
+
+            <div class="info-container">
+                <div class="info-title">学术成就应用详细说明</div>
+                <div class="info-content">
+                    <div class="section">
+                        <span class="info-icon">🧮</span>
+                        <p>梅文鼎在数学上对 <span class="highlight">勾股定理</span> 的研究，为中国传统数学的发展提供了新的思路。</p>
+                    </div>
+                    <div class="section">
+                        <span class="info-icon">🌌</span>
+                        <p>在天文学方面，他对 <span class="highlight">历法推算</span> 的改进，提高了天文观测和预测的准确性。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" style="opacity: 0;"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const video = document.getElementById('person-video');
+            const videoContainer = document.querySelector('.person-video-container');
+
+            videoContainer.addEventListener('click', function () {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.currentTime = 0;
+                }
+            });
+
+            video.play().catch(e => {
+                console.log('自动播放被阻止，点击视频画面开始播放');
+                videoContainer.style.cursor = 'pointer';
+            });
+
+            const seasonsVideo = document.getElementById('seasons-video');
+            seasonsVideo.play().catch(e => {
+                console.log('自动播放被阻止，视频将静音播放');
+                seasonsVideo.muted = true;
+                seasonsVideo.play();
+            });
+        });
+
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        const descriptions = document.querySelectorAll('.description');
+
+        timelineItems.forEach(item => {
+            item.addEventListener('click', () => {
+                timelineItems.forEach(i => i.classList.remove('active'));
+                descriptions.forEach(desc => desc.classList.remove('active'));
+                item.classList.add('active');
+                const index = item.getAttribute('data-index');
+                descriptions[index].classList.add('active');
+            });
+        });
+
+        const categories = [
+            { name: '数学成就', value: 400 },
+            { name: '天文学贡献', value: 300 },
+            { name: '学术著作', value: 200 },
+            { name: '学术传承', value: 150 }
+        ];
+
+        const chart = echarts.init(document.getElementById('chart-container'));
+        chart.setOption({
+            tooltip: { trigger: 'axis' },
+            xAxis: {
+                type: 'category',
+                data: categories.map(cat => cat.name)
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                data: categories.map(cat => cat.value),
+                type: 'bar',
+                itemStyle: {
+                    color: function (params) {
+                        const colors = ['#8c564b', '#e377c2', '#bcbd22', '#17becf'];
+                        return colors[params.dataIndex];
+                    }
+                }
+            }]
+        });
+
+        const nodes = [
+            { id: "勾股定理", type: "数学理论", size: 28, color: "#2ca02c" },
+            { id: "历法推算", type: "天文学方法", size: 28, color: "#2ca02c" },
+
+            { id: "数学研究", type: "学术领域", size: 20, color: "#d62728" },
+            { id: "天文学研究", type: "学术领域", size: 20, color: "#d62728" },
+            { id: "学术著作", type: "学术成果", size: 20, color: "#d62728" },
+            { id: "学术传承", type: "学术影响", size: 20, color: "#d62728" },
+
+            { id: "理论推导", type: "研究方法", size: 18, color: "#ff7f0e" },
+            { id: "观测验证", type: "研究方法", size: 18, color: "#ff7f0e" },
+
+            { id: "知识传播", type: "传承方式", size: 18, color: "#9467bd" },
+            { id: "人才培养", type: "传承方式", size: 18, color: "#9467bd" }
+        ];
+
+        const links = [
+            { source: "勾股定理", target: "历法推算", type: "关联" },
+            { source: "勾股定理", target: "数学研究" },
+            { source: "历法推算", target: "天文学研究" },
+            { source: "勾股定理", target: "理论推导" },
+            { source: "历法推算", target: "观测验证" },
+            { source: "历法推算", target: "学术著作" },
+            { source: "勾股定理", target: "学术传承" },
+            { source: "数学研究", target: "学术传承" },
+            { source: "天文学研究", target: "学术著作" }
+        ];
+
+        const width = 1200, height = 600;
+        const svg = d3.select("#network-container")
+           .append("svg")
+           .attr("width", "100%")
+           .attr("height", height)
+           .attr("viewBox", [0, 0, width, height]);
+
+        const simulation = d3.forceSimulation(nodes)
+           .force("link", d3.forceLink(links).id(d => d.id).distance(d => d.type === "关联" ? 200 : 100))
+           .force("charge", d3.forceManyBody().strength(d => d.type === "数学理论" || d.type === "天文学方法" ? -800 : -300))
+           .force("collide", d3.forceCollide().radius(d => d.size + 15).strength(0.8))
+           .force("center", d3.forceCenter(width / 2, height / 2))
+           .force("x", d3.forceX().strength(0.05))
+           .force("y", d3.forceY().strength(0.05));
+
+        const link = svg.append("g")
+           .selectAll("line")
+           .data(links)
+           .join("line")
+           .attr("stroke", d => d.type === "关联" ? "#2c7bb6" : "#999")
+           .attr("stroke-width", d => d.type === "关联" ? 3 : 1)
+           .attr("stroke-opacity", 0.6);
+
+        const node = svg.append("g")
+           .selectAll("circle")
+           .data(nodes)
+           .join("circle")
+           .attr("r", d => d.size)
+           .attr("fill", d => d.color)
+           .attr("stroke", "#fff")
+           .attr("stroke-width", 1.5)
+           .call(drag(simulation));
+
+        const label = svg.append("g")
+           .selectAll("text")
+           .data(nodes)
+           .join("text")
+           .text(d => d.id)
+           .attr("font-size", d => d.type === "数学理论" || d.type === "天文学方法" ? 14 : 12)
+           .attr("dx", 15)
+           .attr("dy", 4)
+           .style("user-select", "none");
+
+        simulation.on("tick", () => {
+            link.attr("x1", d => d.source.x)
+               .attr("y1", d => d.source.y)
+               .attr("x2", d => d.target.x)
+               .attr("y2", d => d.target.y);
+            node.attr("cx", d => d.x)
+               .attr("cy", d => d.y);
+            label.attr("x", d => d.x)
+               .attr("y", d => d.y);
+        });
+
+        function drag(simulation) {
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
+            }
+
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
+
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+
+            return d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended);
+        }
+
+        node.on("mouseover", function (event, d) {
+            d3.select(this).transition().duration(100).attr("r", d.size * 1.2);
+            d3.select(".tooltip")
+               .style("opacity", 1)
+               .html(`${d.id}<br>类型：${d.type}`)
+               .style("left", `${event.pageX + 15}px`)
+               .style("top", `${event.pageY - 28}px`);
+        }).on("mouseout", function (event, d) {
+            d3.select(this).transition().duration(100).attr("r", d.size);
+            d3.select(".tooltip").style("opacity", 0);
+        });
+
+        setTimeout(() => {
+            simulation.alpha(0.1).restart();
+            svg.transition().duration(1000).attr("viewBox", [-100, -100, width + 200, height + 200]);
+        }, 500);
+
+        window.onresize = () => {
+            chart.resize();
+            svg.attr("width", document.getElementById("network-container").offsetWidth);
+        };
+    </script>
+</body>
+</html>    

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>李冶 - 古代数学家</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            height: 90vh;
+        }
+        .left-panel {
+            width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        #chart-container {
+            height: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex; /* 添加flex布局 */
+        }
+        #chart-container img {
+            width: 50%; /* 图片占一半宽度 */
+            height: 100%;
+            object-fit: contain;
+        }
+        #chart-container .description {
+            width: 50%; /* 文字介绍占一半宽度 */
+            padding-left: 20px;
+            box-sizing: border-box;
+        }
+        #chart-container2 {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 400px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-top: 0;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        li::before {
+            content: '•';
+            color: #2b5b84;
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        /* 新增样式：放大图片的遮罩层 */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+        /* 新增样式：放大后的图片 */
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        /* 新增样式：关闭按钮 */
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .flip-container {
+            perspective: 1000px;
+            width: 150px;
+            height: 150px;
+            margin: 10px;
+            display: inline-block;
+        }
+
+        .flipper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .front {
+            background: white;
+        }
+
+        .back {
+            background: #f5f5f5;
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flip-container.flipped .flipper {
+            transform: rotateY(180deg);
+        }
+
+        /* 新增样式：确保图片大小一致并水平排列 */
+        .image-row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .image-row .flip-container {
+            flex: 1 1 150px; /* 每个容器占150px宽度 */
+            margin: 10px;
+        }
+        /* 新增样式：调整图片排列为上三下二 */
+        .image-row-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: nowrap; /* 防止换行 */
+        }
+        .image-row-bottom {
+            display: flex;
+            justify-content: center; /* 居中显示两个图片 */
+            gap: 20px; /* 设置两个图片之间的间距 */
+        }
+        .image-row-bottom {
+            display: flex;
+            justify-content: space-between;
+        }
+        /* 新增样式：恢复按钮 */
+        .reset-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2b5b84;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* 新增时间轴样式 */
+        .timeline-container {
+            display: flex;
+            flex: 1;
+            margin-bottom: 20px;
+        }
+        .timeline {
+            flex: 1;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .timeline-item:hover::before {
+            background-color: #ff4500;
+        }
+        .timeline-content {
+            transition: all 0.3s ease;
+            transform-origin: left center;
+            opacity: 0.95;
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            opacity: 1;
+        }
+
+        /* 时间轴点动画 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .timeline-item::before {
+            animation: pulse 2s infinite;
+        }
+        .timeline-item:hover::before {
+            animation: none;
+            transform: scale(1.3);
+        }
+
+        /* 优化原有过渡效果 */
+        .timeline-item::before {
+            transition: all 0.3s ease;
+        }
+
+        /* 新增视频样式 */
+        .video-container {
+            flex: 1;
+            padding: 0 15px;
+        }
+        video {
+            width: 80%;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h2>李冶（1192年—1279年） - 金元时期数学家</h2>
+            <img src="images/李冶.jpg" 
+                 style="width: 200px;height: 200px;object-fit:cover;border-radius:8px;"
+                 onclick="openModal(this.src)">
+            <h3>核心成就</h3>
+            <ul>
+                <li>📜 数学著作：著有《测圆海镜》，系统阐述天元术</li>
+                <li>📊 天元术：发展并完善了天元术，为代数学奠定基础</li>
+                <li>🌾 几何研究：深入研究几何学，特别是圆的性质</li>
+                <li>📚 教育贡献：致力于数学教育，培养了大批数学人才</li>
+                <li>🌱 实用数学：强调数学在实际生活中的应用</li>
+            </ul>
+        </div>
+
+        <div class="right-panel">
+            <!-- 新增时间轴和视频 -->
+            <div class="timeline-container">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <h3>1192年</h3>
+                            <p>李冶出生</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <h3>1248年</h3>
+                            <p>著《测圆海镜》</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <h3>1259年</h3>
+                            <p>完成《益古演段》</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <h3>1279年</h3>
+                            <p>逝世</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- 新增视频 -->
+                <div class="video-container">
+                    <video controls>
+                        <source src="images/李冶生平.mp4" type="video/mp4">
+                        您的浏览器不支持视频标签。
+                    </video>
+                </div>
+            </div>
+
+            <div id="chart-container">
+                <!-- 这里将插入222.py中的几何图示 -->
+                <img src="images/李冶圆城图式.jpg" alt="圆城图式" style="width:100%;height:100%;object-fit:contain;"
+                     onclick="openModal(this.src)">
+                <div class="description">
+                    <p>圆城图式是中国古代数学家李冶为阐述勾股容方、勾股容圆图形中的数量关系而设计的几何图形，载于《测圆海镜》卷首，可能源于“洞渊九容术”，是《九章算术》“勾股”问题在宋元时期发展的结果。</p>
+                </div>
+            </div>
+            <div id="chart-container2">
+                <p>
+                    问题：假令圆城一所，不知周径，四面开门，门外纵横各有十字大道。其西北十字道头定为乾地，其东北十字道头定为艮地，其东南十字道头定为巽地，其西南十字道头定为坤地。或问出西门南行四百八十步有树，出北门东行二百步见之, 问径几里?
+                </p>
+                <div class="image-row">
+                    <div class="image-row-top">
+                        <div class="flip-container">
+                            <div class="flipper">
+                                <div class="front">
+                                    <img src="images/李冶1.jpg" alt="Image 1" onclick="flip(this)">
+                                </div>
+                                <div class="back">
+                                    <p>内减天元半径得股圆差：480-x</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flip-container">
+                            <div class="flipper">
+                                <div class="front">
+                                    <img src="images/李冶2.jpg" alt="Image 2" onclick="flip(this)">
+                                </div>
+                                <div class="back">
+                                    <p>又置乙东行步在地，内减天元，得勾圆差：200-x</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flip-container">
+                            <div class="flipper">
+                                <div class="front">
+                                    <img src="images/李冶3.jpg" alt="Image 3" onclick="flip(this)">
+                                </div>
+                                <div class="back">
+                                    <p>以勾圆差增乘股圆差得半段黄方幂：x²-680x+96000</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="image-row-bottom">
+                        <div class="flip-container">
+                            <div class="flipper">
+                                <div class="front">
+                                    <img src="images/李冶4.jpg" alt="Image 4" onclick="flip(this)">
+                                </div>
+                                <div class="back">
+                                    <p>又置天元幂以倍之，也为半段黄方幂；</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flip-container">
+                            <div class="flipper">
+                                <div class="front">
+                                    <img src="images/李冶5.jpg" alt="Image 5" onclick="flip(this)">
+                                </div>
+                                <div class="back">
+                                    <p>因此，得x²-680x+96000=2x²<br>
+                                        相消得：<br>-x²-680x+96000=0<br>
+                                        解之得：x=120或x=-800<br>
+                                        故，径为120<br>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 新增：恢复按钮 -->
+                <button class="reset-button" onclick="resetFlip()">恢复</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增：放大图片的模态框 -->
+    <div id="myModal" class="image-modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+
+    <script>
+        // 响应式设计
+        window.onresize = () => {
+            if (chart) chart.resize();
+        };
+
+        // 打开模态框并显示图片
+        function openModal(imgSrc) {
+            const modal = document.getElementById('myModal');
+            const modalImg = document.getElementById('modalImg');
+            modal.style.display = "flex";
+            modalImg.src = imgSrc;
+        }
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('myModal');
+            modal.style.display = "none";
+        }
+        function flip(element) {
+            console.log('flip function called'); // 添加调试信息
+            const container = element.closest('.flip-container');
+            if (container) {
+                container.classList.toggle('flipped');
+                console.log('flipped class toggled'); // 添加调试信息
+            }
+        }
+        // 恢复按钮功能
+        function resetFlip() {
+            const flipContainers = document.querySelectorAll('.flip-container');
+            flipContainers.forEach(container => {
+                if (container.classList.contains('flipped')) {
+                    container.classList.remove('flipped');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

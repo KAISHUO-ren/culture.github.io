@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>杨辉三角逐行显示版</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f0f8ff;
+        }
+
+        .info-panel {
+            position: fixed;
+            left: 30px;
+            top: 30px;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px auto;
+            padding-top: 100px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            width: 100px;
+            margin: 0 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 16px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .pascal-triangle {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .row {
+            text-align: center;
+            margin: 10px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: rowAppear 0.6s forwards;
+        }
+
+        @keyframes rowAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .number {
+            display: inline-block;
+            min-width: 40px;
+            height: 40px;
+            line-height: 40px;
+            margin: 2px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-panel">
+        <h2>杨辉三角</h2>
+        <p>▸ 每行数字左右对称</p>
+        <p>▸ 第n行有n个数字</p>
+        <p>▸ 第n行数字和为2ⁿ⁻¹</p>
+        <p>▸ 组合公式：C(n,k) = n!/(k!(n-k)!)</p>
+    </div>
+
+    <div class="controls">
+        <input type="number" id="rows" min="1" max="20" value="10" placeholder="行数">
+        <button onclick="generate()">生成</button>
+        <button onclick="clearTriangle()">清空</button>
+    </div>
+    <div class="pascal-triangle"></div>
+
+    <script>
+        // 优化的组合数计算
+        function combination(n, k) {
+            if (k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            k = Math.min(k, n - k);
+            let result = 1;
+            for (let i = 1; i <= k; i++) {
+                result = result * (n - k + i) / i;
+            }
+            return Math.round(result);
+        }
+
+        async function generatePascalTriangle(rows) {
+            const container = document.querySelector('.pascal-triangle');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < rows; i++) {
+                // 创建行容器
+                const row = document.createElement('div');
+                row.className = 'row';
+                
+                // 填充当前行数字
+                for (let j = 0; j <= i; j++) {
+                    const num = document.createElement('div');
+                    num.className = 'number';
+                    num.textContent = combination(i, j);
+                    row.appendChild(num);
+                }
+                
+                // 添加行到容器
+                container.appendChild(row);
+                
+                // 触发行动画（通过强制重绘）
+                void row.offsetWidth; 
+                row.style.animation = 'rowAppear 0.6s forwards';
+                
+                // 行间隔时间
+                await new Promise(r => setTimeout(r, 300));
+            }
+        }
+
+        function generate() {
+            const input = document.getElementById('rows');
+            let rows = parseInt(input.value);
+            
+            // 输入验证
+            if (isNaN(rows) || rows < 1) {
+                alert("请输入1-20之间的数字");
+                return;
+            }
+            rows = Math.min(rows, 20);
+            generatePascalTriangle(rows);
+        }
+
+        function clearTriangle() {
+            document.querySelector('.pascal-triangle').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
