@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>太阳系与祖冲之木星研究</title>
+    <style>
+        /* 祖冲之研究板块 */
+        .zuchongzhi-research {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            width: 300px;
+            padding: 15px;
+            background: rgba(240,248,255,0.9);
+            border: 2px solid #2c3e50;
+            border-radius: 10px;
+            box-shadow: 3px 3px 10px rgba(44,62,80,0.2);
+            z-index: 999;
+            font-family: "楷体", cursive;
+        }
+        .classic-text {
+            color: #2c3e50;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .modern-data {
+            color: #e74c3c;
+            font-weight: bold;
+            border-top: 1px dashed #4a90e2;
+            padding-top: 10px;
+        }
+
+        /* 太阳系容器 */
+        .solarsys {
+            width: 800px;
+            height: 800px;
+            position: relative;
+            margin: 0 auto;
+            background-color: #000000;
+            padding: 0;
+            transform: scale(1);
+        }
+
+        /* 太阳样式 */
+        .sun {
+            left: 357px;
+            top: 357px;
+            height: 90px;
+            width: 90px;
+            background-color: rgb(248, 107, 35);
+            border-radius: 50%;
+            box-shadow: 5px 5px 10px rgb(248, 107, 35),
+                       -5px -5px 10px rgb(248, 107, 35),
+                       5px -5px 10px rgb(248, 107, 35),
+                       -5px 5px 10px rgb(248, 107, 35);
+            position: absolute;
+            margin: 0;
+        }
+
+        /* 行星轨道 */
+        [class$="Orbit"] {
+            background-color: transparent;
+            border-radius: 50%;
+            border-style: dashed;
+            border-color: gray;
+            position: absolute;
+            border-width: 1px;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 行星通用样式 */
+        [class$="mercury"],
+        [class$="venus"],
+        [class$="earth"],
+        [class$="mars"],
+        [class$="jupiter"],
+        [class$="saturn"],
+        [class$="uranus"],
+        [class$="neptune"] {
+            background-color: inherit;
+            border-radius: 50%;
+            position: absolute;
+            animation: rotate linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 行星名称标签 */
+        .planet-name {
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            white-space: nowrap;
+            pointer-events: none;
+            text-align: center;
+            line-height: 1.2;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* 各行星定位 */
+        .mercuryOrbit { left: 342.5px; top: 342.5px; width: 115px; height: 115px; }
+        .mercury {
+            left: 337.5px; top: 395px; 
+            width: 10px; height: 10px;
+            background-color: rgb(166, 138, 56);
+            transform-origin: 62.5px 5px;
+            animation-duration: 1.5s;
+        }
+
+        .venusOrbit { left: 320px; top: 320px; width: 160px; height: 160px; }
+        .venus {
+            left: 309px; top: 389px; 
+            width: 22px; height: 22px;
+            background-color: rgb(246, 157, 97);
+            transform-origin: 91px 11px;
+            animation-duration: 3.84s;
+        }
+
+        .earthOrbit { left: 275px; top: 275px; width: 250px; height: 250px; }
+        .earth {
+            left: 266.5px; top: 391px; 
+            width: 18px; height: 18px;
+            background-color: rgb(115, 114, 174);
+            transform-origin: 134px 9px;
+            animation-duration: 6.25s;
+        }
+
+        .marsOrbit { left: 230px; top: 230px; width: 340px; height: 340px; }
+        .mars {
+            left: 222.5px; top: 392.5px; 
+            width: 15px; height: 15px;
+            background-color: rgb(140, 119, 63);
+            transform-origin: 177.5px 7.5px;
+            animation-duration: 11.75s;
+        }
+
+        .jupiterOrbit { left: 155px; top: 155px; width: 490px; height: 490px; }
+        .jupiter {
+            left: 134px; top: 379px; 
+            width: 42px; height: 42px;
+            background-color: rgb(156, 164, 143);
+            transform-origin: 266px 21px;
+            animation-duration: 74.04s;
+        }
+
+        .saturnOrbit { left: 105px; top: 105px; width: 590px; height: 590px; }
+        .saturn {
+            left: 92px; top: 387px; 
+            width: 26px; height: 26px;
+            background-color: rgb(215, 171, 68);
+            transform-origin: 308px 13px;
+            animation-duration: 183.92s;
+        }
+
+        .uranusOrbit { left: 55px; top: 55px; width: 690px; height: 690px; }
+        .uranus {
+            left: 41.5px; top: 386.5px; 
+            width: 27px; height: 27px;
+            background-color: rgb(164, 192, 206);
+            transform-origin: 358.5px 13.5px;
+            animation-duration: 524.46s;
+        }
+
+        .neptuneOrbit { left: 20px; top: 20px; width: 760px; height: 760px; }
+        .neptune {
+            left: 10px; top: 390px; 
+            width: 20px; height: 20px;
+            background-color: rgb(133, 136, 180);
+            transform-origin: 390px 10px;
+            animation-duration: 1028.76s;
+        }
+
+        /* 旋转动画 */
+        @keyframes rotate {
+            100% {
+                transform: rotate(-360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 祖冲之木星研究 -->
+    <div class="zuchongzhi-research">
+        <div class="classic-text">
+            《宋书·律历志》载：<br>
+            "祖冲之考历岁星，以旧法十二年一周，<br>
+            实则十有二载而超一辰。<br>
+            更立新法，八十四年超辰一次"
+        </div>
+        <div class="modern-data">
+            现代科学验证：<br>
+            • 木星公转周期：11.858年（祖冲之推算）<br>
+            • 现代测量值：11.862年<br>
+            • 会合周期：398.903日（误差仅0.019日）<br>
+            • 岁差周期：84年超辰一次
+        </div>
+    </div>
+
+    <!-- 太阳系模型 -->
+    <div class="solarsys">
+        <div class="sun"></div>
+        
+        <div class="mercuryOrbit"></div>
+        <div class="mercury">
+            <span class="planet-name">水星</span>
+        </div>
+        
+        <div class="venusOrbit"></div>
+        <div class="venus">
+            <span class="planet-name">金星</span>
+        </div>
+        
+        <div class="earthOrbit"></div>
+        <div class="earth">
+            <span class="planet-name">地球</span>
+        </div>
+        
+        <div class="marsOrbit"></div>
+        <div class="mars">
+            <span class="planet-name">火星</span>
+        </div>
+        
+        <div class="jupiterOrbit"></div>
+        <div class="jupiter">
+            <span class="planet-name">木星</span>
+        </div>
+        
+        <div class="saturnOrbit"></div>
+        <div class="saturn">
+            <span class="planet-name">土星</span>
+        </div>
+        
+        <div class="uranusOrbit"></div>
+        <div class="uranus">
+            <span class="planet-name">天王星</span>
+        </div>
+        
+        <div class="neptuneOrbit"></div>
+        <div class="neptune">
+            <span class="planet-name">海王星</span>
+        </div>
+    </div>
+</body>
+</html>

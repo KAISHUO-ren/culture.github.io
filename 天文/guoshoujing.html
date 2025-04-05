@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>郭守敬 - 元代著名天文学家</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        /* 原有样式保持不变 */
+        body { opacity: 0;
+            animation: fadeIn 1s ease-in forwards; 
+        }
+        @keyframes fadeIn { from { opacity: 0; }
+        to { opacity: 1; }}
+        .timeline-item::before {
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .timeline-content {
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 8px;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform; /* 启用GPU加速 */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .left-panel { width: 30%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .left-panel img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .left-panel img:hover {
+            transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .right-panel {
+            margin-left: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-left: 40px; /* Space from fixed left panel */
+        }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .timeline-item:hover::before {
+            background-color: #ff4500;
+        }
+        .timeline-content {
+            transition: all 0.3s ease;
+            transform-origin: left center;
+            opacity: 0.95;
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            opacity: 1;
+        }
+        .books-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .book-info {
+            width: 45%;
+        }
+        .book-info img {
+            max-width: 100%;
+            height: auto;
+        }
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        .book-images img {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .book-images img:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .left-panel ul li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .left-panel ul li:hover {
+            background-color: rgba(255,99,71,0.1);
+            transform: translateX(5px);
+        }
+
+/* 时间轴点动画 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .timeline-item::before {
+            animation: pulse 2s infinite;
+        }
+        .timeline-item:hover::before {
+            animation: none;
+            transform: scale(1.3);
+        }
+
+        /* 优化原有过渡效果 */
+        .timeline-item::before {
+            transition: all 0.3s ease;
+        }
+        /* 其他原有样式保持不变 */
+
+        /* 新增选项卡样式 */
+        .wrapper {
+            margin: 40px 0;
+            width: 100%;
+        }
+        nav {
+            position: relative;
+            background: rgba(255,255,255,0.9);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: rgba(245,245,245,0.9);
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        input[type="radio"] { display: none; }
+        label {
+            cursor: pointer;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        label:hover {
+            background: rgba(255,99,71,0.1);
+        }
+        #book:checked ~ .tab-content.books,
+        #jianyi:checked ~ .tab-content.jianyi,
+        #shoushi:checked ~ .tab-content.shoushi {
+            display: block;
+        }
+        .tab-content img {
+            float: left;
+            margin-right: 20px;
+            width: 200px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        /* 新增视频样式 */
+        .tab-content video {
+            width: 600px;
+            height: 400px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+            object-fit: cover;
+        }
+        .tab-content video:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div class="left-panel">
+    <!-- 原有左侧内容保持不变 -->
+    <img src="images/A郭守敬.png" alt="郭守敬"
+        style="width: 300px;height: 400px;object-fit:cover;border-radius:8px;">
+        <h2>郭守敬 - 元代著名天文学家</h2>
+        <h2>主要成就</h2>
+    <ul>
+        <li>提出“历之本在于测验，而测验之器莫先仪表”的正确主张，创制和改进了十多种天文仪器，如简仪、高表、候极仪、浑天象、立运仪、仰仪、窥几、景符、日晷、星晷、漏刻、正方案、圭表、玲珑仪等。<br></li>
+        <li>在全国范围组织大规模的天文测量，即“四海测验”，测定了二十七个地点的天文初昏、中天、后昏的北极出地高度和昼夜长短，推算出北极的地理位置（今北纬39°56′），这是世界上第一次测出子午线的长度。</li>
+        <li>制订《授时历》，反映了当时天文历法的最新成果，对指导农业生产等具有重要意义。</li>
+    </ul>
+</div>
+
+
+<div class="right-panel">
+    <!-- 原有时间轴内容保持不变 -->
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1231年</h3>
+                <p>出生于顺德府邢台县（今河北省邢台市信都区）</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1231年-1262年左右</h3>
+                <p>从小在祖父教育下学习数学等基础知识，后随学者刘秉忠学习天文学和地理学，打下坚实的天文学基础。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1262年-1276年左右</h3>
+                <p>1262年起，郭守敬开始从事水利工作，这一阶段的实践工作为他后续的天文学研究提供了宝贵的经验和观察视角。
+                    尽管主要从事水利，但郭守敬在此期间可能也在不断积累天文学知识，为未来的工作做准备。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1276年-1291年左右</h3>
+                <p>1276年，郭守敬开始参与修订新历法的工作，这是他在天文学方面取得重大成就的开始。
+                    他创制了简仪、高表、仰仪等十多件天文仪器，极大地提高了天文观测的精度和效率。
+                    主持了全国范围的天文大地测量，重测全天恒星位置，编出星数最多的星表。
+                    推算出一年为365.2425日，与现代天文学中的回归年长度非常接近。
+                    完成了《授时历》的编撰工作，该历法在当时具有极高的精度和实用性，对后世产生了深远影响。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1291年-1316年</h3>
+                <p>著有《推步》《立成》等天文历法著作，进一步丰富和完善了他的天文学理论体系。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1316年</h3>
+                <p>郭守敬逝世，享年八十六岁。</p >
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增选项卡模块 -->
+    <div class="wrapper">
+        <nav>
+            <input type="radio" name="tab" id="book" checked>
+            <input type="radio" name="tab" id="jianyi">
+            <input type="radio" name="tab" id="shoushi">
+            
+            <label for="book" class="home">
+                <i class="fa fa-book"></i> 著作书籍
+            </label>
+            <label for="jianyi" class="comment">
+                <i class="fa fa-star"></i> 简仪详解
+            </label>
+            <label for="shoushi" class="envelope">
+                <i class="fa fa-calendar"></i> 授时历
+            </label>
+
+            <div class="tab-content books">
+                <!-- 原有书籍内容 -->
+                <div class="books-section clearfix">
+                    <div class="book-info">
+                        <h2>著作书籍---《授时历》</h2>
+                        <p>内容：这是郭守敬与王恂、许衡等人共同编制的中国古代最先进、施行最久的历法。该历法采用了一系列先进的天文数据和计算方法，包括365.2425日的回归年长度、精确的月行速度、准确的交食周期等，使历法更加准确和实用。
+                            <br>  
+                             意义：《授时历》的制订是中国古代天文学发展的重要里程碑，标志着中国天文学在当时已经达到了相当高的水平。它的精度和实用性不仅在当时得到了广泛认可，而且对后世天文学的发展产生了深远影响。</p>
+                    </div>
+                    <img src="images/A授时历.jpg" alt="《授时历》">
+                </div>
+                <!-- 其他书籍内容 -->
+                <div class="books-section clearfix">
+                    <div class="book-info">
+                        <h2>著作书籍---《浑天仪象法解》</h2>
+                        <p>内容：该书系统地介绍了浑天仪的制造、使用方法和天文观测的基本原理，包括天球坐标系、恒星位置、日、月、行星的运动规律等。郭守敬在书中详细阐述了浑天仪的构造和天文观测方法，为中国古代天文学的发展提供了重要的理论和实践支持。
+                            <br>     
+                            意义：《浑天仪象法解》是中国古代天文学的经典之作，它的出版对中国古代天文学的发展起到了重要的推动作用。同时，该书也为后世天文学家提供了宝贵的参考和借鉴。
+                            </p >
+                    </div>
+                    <div class="book-images">
+                        <img src="images/A浑天仪象法解.png" alt="《浑天仪象法解》"
+                        style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content jianyi">
+                <div class="video-container">
+                    <video controls>
+                        <source src="images/A简仪.mp4" type="video/mp4">
+                        <source src="images/A简仪.webm" type="video/webm">
+                        您的浏览器不支持视频标签
+                    </video>
+                </div>
+                <div class="content-text">
+                    <h2>简仪详解</h2>
+                    <p>创制背景：1简仪者，元世天文之奇器也，乃郭守敬公于至元十三年（西元1276年）所创，承浑天之法而革其繁缛，开寰宇观测之新章。"浑仪环数过多，遮蔽视线"</p>
+                    <br>
+                        《元史》载："以铜为之，平设单环，刻周天度,简仪分赤道经纬、地平经纬二仪，各置玄机。赤道部四环相叠：定极环居上，校正极星之位；四游环次之，测天体去极度；赤道环载二十八宿分野，量入宿度；百刻环列下，昼夜百刻之数粲然在目。窥衡两端施十字之丝，较星之位毫厘不爽，此法至今犹存于西洋望远镜中。更有妙者，赤道环与百刻环间置四铜筒，变滑磨为滚转，其理通今世轴承之技，早达·芬奇二百年...此仪近代失传，惟存郭守敬简仪"</blockquote>
+                    <br><br>
+                    构造精妙：
+                    <ul>
+                        <li>赤道经纬仪：含四游环、百刻环、赤道环</li>
+                        <li>地平经纬仪：立运环与地平环相合</li>
+                        <li>创新轴承：四铜筒滚柱装置</li>
+                    </ul>
+                </blockquote>
+                </div>
+            </div>
+
+            <div class="tab-content shoushi">
+                <h2>《授时历》成就</h2>
+                <p>历法革新：废除上元积年，首创三次差内插法</p>
+                <blockquote>《元史·历志》："盖自开元以后...其法至是始定，遂用至今"</blockquote>
+            </div>
+        </nav>
+    </div>
+</div>
+
+</body>
+</html>

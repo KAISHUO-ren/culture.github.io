@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>祖冲之 - 南北朝著名天文学家</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        /* 左侧面板 */
+        .left-panel {
+            width: 30%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .left-panel img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .left-panel img:hover {
+            transform: translateY(-5px);
+        }
+
+        /* 右侧内容区 */
+        .right-panel {
+            margin-left: 30%;
+            padding: 40px;
+            box-sizing: border-box;
+            width: 70%;
+        }
+
+        /* 时间轴样式 */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover::before {
+            transform: scale(1.3);
+            background-color: #ff4500;
+        }
+
+        /* 选项卡导航 */
+        .tab-nav {
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .tab-nav input[type="radio"] {
+            display: none;
+        }
+
+        .tab-labels {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .tab-label {
+            padding: 12px 25px;
+            border-radius: 30px;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid transparent;
+        }
+
+        .tab-label:hover {
+            background: #ff6347;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .tab-label i {
+            font-size: 18px;
+        }
+
+        /* 内容区样式 */
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #tab1:checked ~ .content1,
+        #tab2:checked ~ .content2,
+        #tab3:checked ~ .content3 {
+            display: block;
+        }
+
+        /* 书籍展示区 */
+        .books-section {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .book-info {
+            flex: 1;
+        }
+
+        .book-images img {
+            width: 200px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .book-images img:hover {
+            transform: scale(1.05);
+        }
+
+        /* 木星研究样式 */
+        .jupiter-research {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .modern-data {
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        /* 交点月测定样式 */
+        .moon-research {
+            background: #fff5e6;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .calculation {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧信息面板 -->
+    <div class="left-panel">
+        <img src="images/A祖冲之.png" alt="祖冲之画像">
+        <h2>祖冲之 - 南北朝著名天文学家</h2>
+        <h3>主要成就</h3>
+        <ul>
+            <li>首创《大明历》，首次引入岁差概念</li>
+            <li>精确测算交点月为27.21223日</li>
+            <li>推算木星公转周期11.858年</li>
+            <li>圆周率精确到小数点后七位</li>
+            <li>发明指南车、水碓磨等机械装置</li>
+        </ul>
+    </div>
+
+    <!-- 右侧内容区 -->
+    <div class="right-panel">
+        <!-- 时间轴 -->
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>429年</h3>
+                    <p>祖冲之出生于南朝宋元嘉六年，丹阳郡建康县（今江苏南京），自幼聪慧，对数学和天文学表现出浓厚的兴趣。</p >
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>454年左右</h3>
+                    <p>祖冲之进入华林学省，开始从事文史撰述和历算研究工作，接触到大量天文、历法、术算方面的书籍，为其后来的天文学研究奠定了基础。</p >
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>461年-462年</h3>
+                    <p>祖冲之在南徐州（今江苏镇江）任职期间，发现前代历法误差大，开始着手编制新的历法。
+                        462年，他编成《大明历》，并向刘宋皇帝刘骏进献，同时上表请求讨论颁行，但遭到戴法兴的反对。</p >
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>494年-498年</h3>
+                    <p>祖冲之担任长水校尉期间，不仅关注机械制造和农业生产，还继续对天文学进行研究。他写《安边论》时，也体现了对天文地理知识的运用。</p >
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>500年左右</h3>
+                    <p>祖冲之逝世，享年七十二岁。他的天文历法心血之作《大明历》在他去世后十年（510年）才以《甲子元历》之名颁行。</p >
+                </div>
+            </div>
+        </div>
+
+        <!-- 选项卡导航 -->
+        <div class="tab-nav">
+            <input type="radio" name="tab" id="tab1" checked>
+            <input type="radio" name="tab" id="tab2">
+            <input type="radio" name="tab" id="tab3">
+            
+            <div class="tab-labels">
+                <label for="tab1" class="tab-label">
+                    <i class="fa fa-book"></i>著作文献
+                </label>
+                <label for="tab2" class="tab-label">
+                    <i class="fa fa-star"></i>木星研究
+                </label>
+                <label for="tab3" class="tab-label">
+                    <i class="fa fa-moon-o"></i>交点月
+                </label>
+            </div>
+
+            <!-- 著作内容 -->
+            <div class="tab-content content1">
+                <div class="books-section">
+                    <div class="book-info">
+                        <h2>《大明历》</h2>
+                        <p>公元462年编制完成，首次将岁差引入历法计算，提出每391年设置144个闰月的新闰周，大大提高了历法精度。
+                            ​首次引入岁差概念<br>
+                                发现地球自转轴偏移导致冬至点每年西移约50.2秒，测得岁差为45年11月差一度（今测约70.7年差一度）<br>
+                                区分回归年（365.24281481日）与恒星年（365.25636日），比当时通行的《元嘉历》更精确<br>
+                                这一发现打破"万世不变"的传统观念，将中国历法带入考虑天体运动复杂性的新阶段<br>
+                                ​精确交点月测算<br>
+
+                                测得交点月周期为27.21223日（现代值27.21222日），误差仅0.00001日<br>
+                                基于此精准预测了436-459年间的4次月食，结果与实际完全吻合<br>
+                                这一成果使日月食预报准确性达到新高度，成为历法实用化的重要突破<br>
+                                ​历法系统革新<br>
+
+                                ​置闰改革：将传统19年7闰改为391年144闰，误差从200年差1天降至千年级误差<br>
+                                ​五星运行周期：测得木星公转周期11.858年（今测11.862年），水星会合周期115.88日（今测115.88日）<br>
+                                ​圭表测影法：提出用正午日影长度确定冬至时刻，提升节气划分精度<br>
+
+                        </p>
+                    </div>
+                    <div class="book-images">
+                        <img src="images/A大明历.jpg" alt="大明历">
+                    </div>
+                </div>
+                <div class="book-info">
+                    <h2>著作书籍---《驳议》</h2>
+                    <p>这是祖冲之为《大明历》所写的辩护词，详细阐述了《大明历》的科学性和先进性，以及与前代历法的差异和优势。<br>
+                        ​辩论背景<br>
+
+                        462年祖冲之上呈《大明历》，遭权臣戴法兴以"违古制"为由反对<br>
+                        戴法兴宣称："古圣先贤所定历法不可更易"，攻击祖冲之"诬天背经"<br>
+                        ​科学论证体系<br>
+
+                        ​数据实证：列举23年间的月食观测记录，证明旧历误差而新历精准<br>
+                        ​方法论突破：提出"愿闻显据，以覆理实"，强调证据优先于权威<br>
+                        ​逻辑反驳：指出"信古疑今"的荒谬性，以日影实测数据推翻守旧派论点<br>
+                        ​历史影响<br>
+
+                        这场辩论成为中国古代科学史上"实测派"与"崇古派"的经典对决<br>
+                        虽当时未被采纳，但为后世历法改革奠定理论基础，510年梁朝正式施行<br>
+                        唐代僧一行、元代郭守敬等均受其影响，推动中国天文学持续发展<br>
+                    </p >
+                </div>
+                <div class="book-images">
+                    <img src="images/A驳议.png" alt="驳议"
+                    style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                    
+                </div>
+            </div>
+            
+
+            <!-- 木星研究 -->
+            <div class="tab-content content2">
+                <div class="jupiter-research">
+                    <h3>木星运行研究</h3>
+                    <div class="modern-data">
+                        <p>• 公转周期：11.858年（现代值11.862年）<br>
+                        • 会合周期：398.88日（误差＜1日）<br>
+                        • 超辰周期：84年修正一次岁差</p>
+                    </div>
+                    <div class="historical-record">
+                        <h4>《宋书·律历志》记载</h4>
+                        <p>"岁星行天十二周，其实十一周有奇，新历以八十四年超辰一次..."</p>
+                    </div>
+                    <div class="image-link">
+                        <a href="木星祖冲之.html" target="_blank">
+                            <img src="images/AAA木星.png" alt="木星研究" style="width: 100%; max-width: 500px; height: auto; object-fit: cover; border-radius: 8px; transition: transform 0.3s ease;">   
+                        </a>
+                        <p>点击图片查看详请</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交点月测定 -->
+            <div class="tab-content content3">
+                <div class="moon-research">
+                    <h3>交点月精确测算</h3>
+                    <div class="calculation">
+                        <p>祖冲之测算值：27.21223日<br>
+                        现代测量值：27.21222日<br>
+                        误差：0.00001日（约0.864秒）</p>
+                    </div>
+                    <div class="significance">
+                        <h4>历史意义</h4>
+                        <p>该成果使日月食预测精度提高至时辰级别，领先西方近千年。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

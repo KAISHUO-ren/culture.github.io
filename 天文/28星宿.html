@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        /* 新增左侧标注样式 */
+        #annotation {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 25%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        #canvas-container {
+            position: relative;
+            width: 75%;
+            height: 100vh;
+            float: right;
+        }
+        #canvas {
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .tooltip {
+            position: absolute;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.97);
+            color: #fff;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            max-width: 320px;
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+            line-height: 1.6;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.2s;
+        }
+    </style>
+</head>
+<body>
+     <!-- 新增左侧标注区域 -->
+     <div id="annotation">
+        <h2>二十八星宿</h2>
+        <p>点击星宿查看详细信息</p>
+        <hr>
+        <p>二十八星宿是中国古代天文学的重大创造，它把连续通过南中天的恒星分为二十八群，各以一个字来命名：角、亢、氏、房、心、尾、箕、斗、牛、女、虚、危、室、壁、奎、娄、胃、昂、毕、觜、参、井、鬼、柳、星、张、翼、轸。<br>
+
+            <br>二十八星宿是沿着黄道和赤道之间来划分；自古以来，人们都是依据它们的出没和中天时刻来定一年四季二十四节气。古人把二十八个部份归纳为四个大星区，并冠以名：东方青龙、北方玄武、西方白虎、南方朱雀，每一个方位星区七宿。<br>
+
+            <br>二十八星宿环绕在天体大气里面，周而复始的运转不停，分别掌握着东西南北四个方向的天象，以分昼夜的变化，以及与阴阳气数的变化，然而在古代堪舆学更以二八星宿分成四个方向「左青龙、右白虎、前朱雀、后玄武的四象线」来定分野。<br>
+            <br>古时人民为了方便于观测日、月和五大行星﹝金、木、水、火、土﹞的运转，便将黄、赤道附近的星座选出二十八个做为标志，合称二十八星座、或二十八星宿，名称是、角、亢、氏、房、心、尾、箕﹝这七个星宿组成一个龙的形象、春分时节出现在东部的天空〝故称〞东方青龙七宿﹞，斗、牛、女、虚、危、室、壁﹝这七个星宿形成一组龟蛇互缠的形象、春分时节出现在北部的天空〝故称〞北方玄武七宿﹞，奎、楼、胃、昂、毕、嘴、参﹝这七星宿形成一个虎的形象、春分时节出现在西部的天空〝故称〞西方白虎七宿﹞，井、鬼、柳、星、张、翼、轸﹝这七个星宿又形成一组鸟的形象、春分时节出现在南部天空〝故称〞南方朱雀七宿﹞由以上七宿组成的一个动物的形象，合称为四象、﹝四维、四兽﹞古代人民用这四象和二十八星宿中每象每宿的出没和到达中天的时刻来判定季节的要法，现代堪舆师所用的工具《罗盘》二十八星宿的五行就是从这里定出来的，从以上的数据就可证明二十八星宿是一年五行的变化，不是现代农民历里面所用的二十八天节气的用法，古人听天由命，面向南方看方向节气，所以才有左东方青龙、右西方白虎、后北方玄武、前南方朱雀形象产生的结果。<br>
+        </p>
+    </div>
+    
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+
+    <script>
+        // 完整28星宿数据（含详细说明）
+        const constellations = [
+            // 东方青龙七宿
+            { 
+                name: "角", group: "青龙", color: "#00FFC2",link: "角.html",
+                info: "角木蛟：青龙之角",
+                detail: "二十八宿之首，象征龙角。属木，春分时节位于中天。包含室女座α（角宿一）等恒星，主掌军事与新生事物。"
+            },
+            { 
+                name: "亢", group: "青龙", color: "#00FFC2",link: "亢.html",
+                info: "亢金龙：青龙咽喉",
+                detail: "象征龙的咽喉，属金。秋分时位于中天。包含室女座κ等恒星，主掌瘟疫防治与气候变化。"
+            },
+            { 
+                name: "氐", group: "青龙", color: "#00FFC2",link: "氐.html",
+                info: "氐土貉：青龙胸臆",
+                detail: "象征龙的胸骨，属土。包含天秤座α等恒星，主掌土地耕作与建筑营造。"
+            },
+            { 
+                name: "房", group: "青龙", color: "#00FFC2",link: "房.html",
+                info: "房日兔：青龙腹腔",
+                detail: "象征龙的腹腔，属日。包含天蝎座π等恒星，主掌婚姻嫁娶与政治清明。"
+            },
+            { 
+                name: "心", group: "青龙", color: "#00FFC2",link: "心.html",
+                info: "心月狐：青龙心脏",
+                detail: "象征龙的心脏，属月。包含天蝎座σ（心宿二）等恒星，主掌星象占卜与帝王决策。"
+            },
+            { 
+                name: "尾", group: "青龙", color: "#00FFC2",link: "尾.html",
+                info: "尾火虎：青龙尾部",
+                detail: "象征龙尾，属火。包含天蝎座μ等恒星，主掌五谷丰收与水利工程。"
+            },
+            { 
+                name: "箕", group: "青龙", color: "#00FFC2",link: "箕.html",
+                info: "箕水豹：龙尾之风",
+                detail: "象征龙尾摆动生风，属水。包含人马座γ等恒星，主掌航海贸易与文化交流。"
+            },
+
+            // 北方玄武七宿
+            { 
+                name: "斗", group: "玄武", color: "#4ACBFF",link: "斗.html",
+                info: "斗木獬：玄武之首",
+                detail: "形似北斗，属木。包含人马座φ等恒星，主掌科举功名与天文观测。"
+            },
+            { 
+                name: "牛", group: "玄武", color: "#4ACBFF",link: "牛.html",
+                info: "牛金牛：玄武之颈",
+                detail: "象征牛首，属金。包含摩羯座β等恒星，主掌畜牧业与皮革制造。"
+            },
+            { 
+                name: "女", group: "玄武", color: "#4ACBFF",link: "女.html",
+                info: "女土蝠：玄武胸腹",
+                detail: "象征女性，属土。包含宝瓶座ε等恒星，主掌纺织女红与婚配生育。"
+            },
+            { 
+                name: "虚", group: "玄武", color: "#4ACBFF",link: "虚.html",
+                info: "虚日鼠：玄武心室",
+                detail: "属日，包含宝瓶座β等恒星，主掌丧葬祭祀与历法制定。"
+            },
+            { 
+                name: "危", group: "玄武", color: "#4ACBFF",link: "危.html",
+                info: "危月燕：玄武腹腔",
+                detail: "属月，包含飞马座θ等恒星，主掌建筑安全与灾害预警。"
+            },
+            { 
+                name: "室", group: "玄武", color: "#4ACBFF",link: "室.html",
+                info: "室火猪：玄武尾部",
+                detail: "属火，包含飞马座α等恒星，主掌宫室建造与军事防御。"
+            },
+            { 
+                name: "壁", group: "玄武", color: "#4ACBFF",link: "壁.html",
+                info: "壁水貐：玄武甲壳",
+                detail: "属水，包含仙女座α等恒星，主掌典籍收藏与知识传承。"
+            },
+
+            // 西方白虎七宿
+            { 
+                name: "奎", group: "白虎", color: "#FFD700",link: "奎.html",
+                info: "奎木狼：白虎之首",
+                detail: "属木，包含仙女座η等恒星，主掌武备制造与边疆防御。"
+            },
+            { 
+                name: "娄", group: "白虎", color: "#FFD700",link: "娄.html",
+                info: "娄金狗：白虎颈项",
+                detail: "属金，包含白羊座β等恒星，主掌牧畜繁殖与祭祀牺牲。"
+            },
+            { 
+                name: "胃", group: "白虎", color: "#FFD700",link: "胃.html",
+                info: "胃土雉：白虎胸腹",
+                detail: "属土，包含白羊座35等恒星，主掌粮食储存与医药配制。"
+            },
+            { 
+                name: "昴", group: "白虎", color: "#FFD700",link: ".html",
+                info: "昴日鸡：白虎心室",
+                detail: "属日，著名的昴星团所在，主掌司法刑狱与时间计量。"
+            },
+            { 
+                name: "毕", group: "白虎", color: "#FFD700",link: "毕.html",
+                info: "毕月乌：白虎腹腔",
+                detail: "属月，包含金牛座ε等恒星，主掌狩猎活动与军事训练。"
+            },
+            { 
+                name: "觜", group: "白虎", color: "#FFD700",link: "觜.html",
+                info: "觜火猴：白虎之口",
+                detail: "属火，包含猎户座λ等恒星，主掌山林开发与矿产开采。"
+            },
+            { 
+                name: "参", group: "白虎", color: "#FFD700",link: "参.html",
+                info: "参水猿：白虎尾部",
+                detail: "属水，包含猎户座ζ等恒星，主掌冬季农事与水利工程。"
+            },
+
+            // 南方朱雀七宿
+            { 
+                name: "井", group: "朱雀", color: "#FF4E60",link: "井.html",
+                info: "井木犴：朱雀之首",
+                detail: "属木，包含双子座μ等恒星，主掌水井治理与桥梁建设。"
+            },
+            { 
+                name: "鬼", group: "朱雀", color: "#FF4E60",link: "鬼.html",
+                info: "鬼金羊：朱雀颈项",
+                detail: "属金，著名的积尸气星团所在，主掌祭祀仪式与鬼神崇拜。"
+            },
+            { 
+                name: "柳", group: "朱雀", color: "#FF4E60",link: "柳.html",
+                info: "柳土獐：朱雀胸腹",
+                detail: "属土，包含长蛇座δ等恒星，主掌园林绿化与草木种植。"
+            },
+            { 
+                name: "星", group: "朱雀", color: "#FF4E60",link: "星.html",
+                info: "星日马：朱雀心室",
+                detail: "属日，包含长蛇座α等恒星，主掌驿路交通与信息传递。"
+            },
+            { 
+                name: "张", group: "朱雀", color: "#FF4E60",link: "张.html",
+                info: "张月鹿：朱雀腹腔",
+                detail: "属月，包含长蛇座υ等恒星，主掌宴饮礼仪与文艺表演。"
+            },
+            { 
+                name: "翼", group: "朱雀", color: "#FF4E60",link: "翼.html",
+                info: "翼火蛇：朱雀之翼",
+                detail: "属火，包含巨爵座α等恒星，主掌音乐创作与外交事务。"
+            },
+            { 
+                name: "轸", group: "朱雀", color: "#FF4E60",link: "轸.html",
+                info: "轸水蚓：朱雀尾部",
+                detail: "属水，包含乌鸦座γ等恒星，主掌车驾制造与物流运输。"
+            }
+        ];
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const tooltip = document.getElementById('tooltip');
+        
+        // 配置参数
+        const CONFIG = {
+            radius: Math.min(window.innerWidth * 0.75, window.innerHeight) * 0.4,
+            nodeSize: 5,
+            angleOffset: -90,
+            angleStep: 360/28,
+            connectionWidth: 1.2
+        };
+
+
+        // 背景渐变
+        const bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        bgGradient.addColorStop(0, 'rgba(16,25,65,0.25)');
+        bgGradient.addColorStop(1, 'rgba(8,12,40,0.7)');
+
+        // 初始化星宿位置
+        function initPositions() {
+            constellations.forEach((c, index) => {
+                const angle = CONFIG.angleOffset + index * CONFIG.angleStep;
+                const radian = angle * Math.PI/180;
+                c.x = canvas.width/2 + Math.cos(radian) * CONFIG.radius;
+                c.y = canvas.height/2 + Math.sin(radian) * CONFIG.radius;
+                c.scale = 1;
+            });
+        }
+
+        // 动态星空
+        class Star {
+            constructor() {
+                this.reset();
+                this.alpha = 0.3 + Math.random()*0.3;
+                this.speed = 0.1 + Math.random()*0.15;
+            }
+            reset() {
+                this.x = Math.random()*canvas.width;
+                this.y = Math.random()*canvas.height;
+                this.size = 0.3 + Math.random()*0.7;
+            }
+            update() {
+                this.alpha += this.speed * (Math.random() > 0.5 ? 1 : -1);
+                this.alpha = Math.min(Math.max(this.alpha, 0.2), 0.6);
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255,255,255,${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+
+        // 系统初始化
+        let stars = Array(200).fill().map(() => new Star());
+        let activeNode = null;
+        
+        function init() {
+            const container = document.getElementById('canvas-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            CONFIG.radius = Math.min(canvas.width, canvas.height) * 0.4;
+            initPositions();
+        }
+
+        function draw() {
+            // 绘制渐变背景
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制星空
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            // 绘制连接线
+            constellations.forEach(c => {
+                const gradient = ctx.createLinearGradient(
+                    canvas.width/2, canvas.height/2, c.x, c.y
+                );
+                gradient.addColorStop(0, c.color + (activeNode === c ? 'cc' : '33'));
+                gradient.addColorStop(1, c.color + '00');
+                
+                ctx.beginPath();
+                ctx.moveTo(canvas.width/2, canvas.height/2);
+                ctx.lineTo(c.x, c.y);
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = activeNode === c ? 2.5 : CONFIG.connectionWidth;
+                ctx.stroke();
+            });
+
+            // 绘制星宿节点
+            constellations.forEach(c => {
+                const dx = c.x - mousePos.x;
+                const dy = c.y - mousePos.y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                c.scale = distance < 50 ? 1.4 : 1;
+
+                // 三层光晕
+                [[20, 0.3], [12, 0.6], [6, 0.9]].forEach(([r, a]) => {
+                    const gr = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, r);
+                    gr.addColorStop(0, c.color + Math.floor(a * 255).toString(16));
+                    gr.addColorStop(1, c.color + '00');
+                    
+                    ctx.fillStyle = gr;
+                    ctx.beginPath();
+                    ctx.arc(c.x, c.y, r * c.scale, 0, Math.PI*2);
+                    ctx.fill();
+                });
+
+                // 核心节点
+                ctx.fillStyle = c.color;
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, CONFIG.nodeSize * c.scale, 0, Math.PI*2);
+                ctx.fill();
+
+                // 文字标签
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.font = `${12 * c.scale}px Microsoft YaHei`;
+                ctx.textAlign = 'center';
+                ctx.fillText(c.name, c.x, c.y + 18 * c.scale);
+            });
+
+            // 绘制中心地球
+            const earthGradient = ctx.createRadialGradient(
+                canvas.width/2, canvas.height/2, 0,
+                canvas.width/2, canvas.height/2, 50
+            );
+            earthGradient.addColorStop(0, '#4a8fe7');
+            earthGradient.addColorStop(1, '#1a2c4d');
+            ctx.fillStyle = earthGradient;
+            ctx.beginPath();
+            ctx.arc(canvas.width/2, canvas.height/2, 35, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+
+        let selectedConstellation = null;
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            // 检测点击的星宿（优化点击范围判断）
+            const clickedConstellation = constellations.find(c => {
+                const dx = (c.x - clickX) * (1 / c.scale); // 缩放补偿
+                const dy = (c.y - clickY) * (1 / c.scale);
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                return distance < 30; // 固定点击半径
+            });
+
+            if(clickedConstellation) {
+                // 阻止默认行为并跳转
+                e.preventDefault();
+                window.location.href = clickedConstellation.link;
+            }
+        });
+
+
+        // 交互处理
+        let mousePos = {x: 0, y: 0};
+        <!-- 在script标签内修改mousemove事件处理部分 -->
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mousePos.x = e.clientX - rect.left;
+            mousePos.y = e.clientY - rect.top;
+
+            // 优化1：使用requestAnimationFrame提升渲染性能
+            requestAnimationFrame(() => {
+                activeNode = constellations.find(c => {
+                    const dx = c.x - mousePos.x;
+                    const dy = c.y - mousePos.y;
+                    return Math.sqrt(dx*dx + dy*dy) < 25;
+                });
+
+                // 优化2：使用CSS transform提升动画流畅度
+                if(activeNode) {
+                    const tooltipWidth = 320;
+                    const tooltipHeight = 200;
+                    const xOffset = 15;  // 水平偏移量
+                    const yOffset = 15;  // 垂直偏移量
+
+                    // 计算边界防止超出画布
+                    let left = mousePos.x + xOffset;
+                    let top = mousePos.y + yOffset;
+                    
+                    // 边界检测
+                    if(left + tooltipWidth > canvas.width) left = canvas.width - tooltipWidth;
+                    if(top + tooltipHeight > canvas.height) top = canvas.height - tooltipHeight;
+
+                    // 使用transform替代直接坐标修改
+                    tooltip.style.transform = `translate(${left}px, ${top}px)`;
+                    tooltip.style.opacity = 1;
+                    tooltip.style.color = activeNode.color;
+                    
+                    // 优化3：动态调整提示框内容
+                    tooltip.innerHTML = `
+                        <div style="font-size:18px;margin:12px 0;color:${activeNode.color}">
+                            ${activeNode.group}·${activeNode.name}宿
+                        </div>
+                        <div style="font-size:14px;color:#fff;margin:10px 0">
+                            ${activeNode.info}
+                        </div>
+                        <div style="font-size:13px;line-height:1.6;opacity:0.8">
+                            ${activeNode.detail}
+                        </div>
+                    `;
+                } else {
+                    // 优化4：添加渐隐动画
+                    tooltip.style.transition = 'opacity 0.3s ease-out';
+                    tooltip.style.opacity = 0;
+                }
+            });
+        });
+
+        // 优化5：添加鼠标离开画布时的隐藏逻辑
+        canvas.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = 0;
+        });
+
+        // 系统启动
+        window.addEventListener('resize', init);
+        init();
+        (function animate() {
+            draw();
+            requestAnimationFrame(animate);
+        })();
+    </script>
+</body>
+</html>

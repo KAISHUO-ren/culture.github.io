@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>石申 - 魏国著名天文学家</title>
+    <style>
+        /* 原有样式保留 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .left-panel {
+            width: 30%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .left-panel img {
+            transition: transform 0.3s ease, 
+                        box-shadow 0.3s ease, 
+                        border-radius 0.3s ease;
+            border-radius: 12px;
+        }
+        .left-panel img:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            border-radius: 16px;
+        }
+        .right-panel {
+            margin-left: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-left: 40px;
+        }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .timeline-item:hover::before {
+            background-color: #ff4500;
+            transform: scale(1.4);
+            box-shadow: 0 0 12px rgba(255,69,0,0.3);
+        }
+        .timeline-content {
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-origin: left center;
+            opacity: 0.95;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(255, 99, 71, 0.15), 
+                        0 6px 12px rgba(0,0,0,0.1);
+            opacity: 1;
+            border-radius: 12px;
+        }
+        .books-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .book-info {
+            width: 45%;
+        }
+        .book-info img {
+            max-width: 100%;
+            height: auto;
+        }
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        .book-images img {
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            border-radius: 8px;
+        }
+        .book-images img:hover {
+            transform: scale(1.06) rotate(2deg);
+            box-shadow: 0 15px 35px rgba(255, 99, 71, 0.15),
+                        0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+        .left-panel ul li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .left-panel ul li:hover {
+            background: linear-gradient(145deg, 
+                        rgba(255,99,71,0.1), 
+                        rgba(255,99,71,0.05));
+            transform: translateX(8px);
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.05);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .timeline-item::before {
+            animation: pulse 2s infinite;
+        }
+        .timeline-item:hover::before {
+            animation: none;
+        }
+
+        /* 新增选项卡样式 */
+        .tab-container {
+            margin: 40px 0;
+            position: relative;
+        }
+        .tab-nav {
+            display: flex;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 2px solid #eee;
+        }
+        .tab-button {
+            padding: 12px 25px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .tab-button.active {
+            color: #ff6347;
+            background: rgba(255,99,71,0.1);
+        }
+        .tab-button:not(.active):hover {
+            transform: translateY(-2px);
+            color: #ff4500;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+            animation: fadeIn 0.4s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* 新增链接样式 */
+        .tab-content a {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .tab-content a:hover {
+            transform: scale(1.02);
+        }
+
+        /* 保持原有图片动画 */
+        .tab-content img {
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="left-panel">
+    <!-- 左侧原有内容完全保留 -->
+    <img src="images/A石申.png" alt="石申" style="width: 300px;height: 400px;object-fit:cover;border-radius:8px;">
+    <h2>石申——魏国著名天文学家</h2>
+    <h2>主要成就</h2>
+    <ul>
+        <li>与甘德所测定并精密记录下的黄道附近恒星位置及其与北极的距离，创立了世界上最古的恒星表。</li>
+        <li>勤于对天空中的恒星作长期细致的观测，推算出木星的回合周期为400天整（比准确数值398.88天差1.12天），推算出水星的回合周期是136日（比实际数值115日误差了21日），基本掌握了水星的运行规，首先发现了火星的逆行现象，推算出火星行度周期为410度780日（接近于实际日期）。</li>
+        <li>观测到太阳日珥，首次发现日冕，最早留下了有关太阳黑子的纪录。发现月亮运动有迟疾的变化和偏离黄道的运动，并最早对彗星进行分类，最早记载下日食、月食是天体相互掩食的现象。</li>
+        <li>第一次建立起完整的坐标概念，也是黄赤交角数据的最早测定者。</li>
+        <li>对木星的观测尤为精细，观测到了木星的卫星木卫二（近代是在十七世纪初望远镜发明之后，才由伽利略观测到的）。</li>
+    </ul>
+</div>
+
+<div class="right-panel">
+    <!-- 原有时间轴完全保留 -->
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>约公元前475年</h3>
+                <p>出生于魏国开封</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>战国中期（具体时间不详）</h3>
+                <p>石申长期观测天象，系统地观察了金、木、水、火、土五大行星的运行，并发现了其出没的规律。
+                    他测定了121颗恒星的方位，并编制了《石氏星表》，这是中国最早的星表之一，对后世天文学产生了深远影响。</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>战国中期（具体时间不详）</h3>
+                <p>石申撰写了《天文》八卷，该书在西汉以后被尊称为《石氏星经》。他与甘德的《星占》八卷合称《甘石星经》，在中国和世界天文学史上占有重要地位。</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>自战国中期以后</h3>
+                <p>石申的天文学研究成果被后世天文学家所沿用和发展，对中国古代天文学的发展产生了深远的影响。如今，他的名字还被用来命名月球背面的一座环形山，这是对他在天文学领域杰出贡献的肯定。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增选项卡模块 -->
+    <div class="tab-container">
+        <div class="tab-nav">
+            <button class="tab-button active" onclick="switchTab(event, 'books')">著作书籍</button>
+            <button class="tab-button" onclick="switchTab(event, 'planets')">太阳系行星</button>
+            <button class="tab-button" onclick="switchTab(event, 'constellations')">二十八星宿</button>
+            <button class="tab-button" onclick="switchTab(event, 'big-dipper')">北斗七星</button>
+        </div>
+
+        <div id="books" class="tab-content active">
+            <!-- 原有书籍内容完全保留 -->
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>著作书籍---《天文》八卷（后称《石氏星经》）</h2>
+                    <p>内容与成就：
+                        <br>
+                        ​恒星观测体系
+                        <br>
+                        石申系统观测并记录了黄道附近恒星的方位，测定121颗恒星的赤道坐标（入宿度和去极度），涵盖28宿及中外星官共120座。这是世界上最早的恒星表之一，比希腊天文学家伊巴谷的星表早约200年。其数据成为后世历法编制和天体测量的基础，如唐代《开元占经》仍引用其星表片段。
+                        <br>
+                        ​行星运行规律
+                        <br>
+                        首次发现并记录了金、木、水、火、土五大行星的“顺行”与“逆行”现象，尤其对火星、金星的逆行轨迹有详细描述。此外，推算了行星动态规律，为占星与历法提供依据。
+                        <br>
+                        ​赤道坐标系统
+                        <br>
+                        开创性地使用赤道坐标系记录恒星位置，以“距度”（相邻宿距星的赤经差）和“去极度”（距北极的角距）为坐标参数，奠定了中国古代天文观测的基础。
+                        <br>
+                        ​占星与历法结合
+                        <br>
+                        包含占星术内容，将天象与人间事务关联，如彗星形态与灾异预测，但核心科学价值在于其系统的天文数据</p>
+                </div>
+                <div class="book-images">
+                    <img src="images/A石氏星经.jpg" alt="《石氏星经》" style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                </div>
+            </div>
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>著作书籍---《石氏星表》</h2>
+                    <p>石申对恒星进行了系统的观测，共测定了121颗（也有说法称他测定的恒星有138座，共810颗）恒星的方位，并编制了《石氏星表》。这是中国最早的星表之一，对后世天文学的发展产生了深远影响。</p>
+                </div>
+                <div class="book-images">
+                    <img src="images/A石氏星表.jpg" alt="《石氏星表》" style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                </div>
+            </div>
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>著作---《甘石星经》</h2>
+                    <p>石申的《天文》与甘德的《星占》合编为《甘石星经》，主要内容包括：
+                        <br>
+                        恒星表：记录800余颗恒星，其中121颗坐标明确；
+                        <br>
+                        行星运行周期与占验；
+                        <br>
+                        天文历法理论，如四分历、岁星纪年法等。
+                        <br>
+                        历史意义：
+                        <br>
+                        该书是中国及世界现存最早的天文学专著之一，被收入宋代《道藏》（题名《通占大象历星经》），虽经后人增补，仍保留战国原始数据，成为研究古代天文的核心文献。</p>
+                </div>
+                <div class="book-images">
+                    <img src="images/AA甘石星经.png" alt="甘石星经" style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                </div>
+            </div>
+            <div class="books-section clearfix">
+                <div class="book-info">
+                    <h2>发现---彗星与天体掩食现象</h2>
+                    <p>石申最早对彗星进行分类，并最早记载下日食、月食是天体相互掩食的现象。</p>
+                </div>
+                <div class="book-images">
+                    <img src="images/A日食.jpg" alt="日食" style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- 修改后的选项卡内容 -->
+        <div id="planets" class="tab-content">
+            <h2>太阳系行星研究</h2>
+            <p>石申在行星运动研究方面的重要成果</p>
+            <a href="太阳系.html">  
+                <img src="images/AA太阳系.png" alt="太阳系" style="width: 1000px;height: 600px;object-fit:cover;border-radius:8px;">
+            </a>
+        </div>
+
+        <div id="constellations" class="tab-content">
+            <h2>二十八星宿体系</h2>
+            <p>关于古代二十八星宿体系的研究成果</p>
+            <a href="28星宿.html"> 
+                <img src="images/AA二十八星宿.png" alt="二十八星宿" style="width: 1000px;height: 600px;object-fit:cover;border-radius:8px;">
+            </a>
+        </div>
+
+        <div id="big-dipper" class="tab-content">
+            <h2>北斗七星观测</h2>
+            <p>古代北斗七星观测技术及其应用</p>
+            <a href="北斗七星.html"> 
+                <img src="images/AA北斗七星.png" alt="北斗七星" style="width: 1000px;height: 600px;object-fit:cover;border-radius:8px;">
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 新增选项卡切换逻辑
+    function switchTab(event, tabId) {
+        // 移除所有激活状态
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // 添加当前激活状态
+        event.currentTarget.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background-color: #0B0B0D;
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #canvas {
+            position: absolute;
+        }
+        /* 新增提示框样式 */
+        .star-tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+            font-size: 14px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .star-tooltip h3 {
+            margin: 0 0 4px 0;
+            color: #6BD6FF;
+            font-size: 16px;
+        }
+        .star-tooltip p {
+            margin: 0;
+            color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="tooltip" class="star-tooltip"></div>
+
+    <script>
+        // 北斗七星数据（包含简介）
+        const DIPPER_STARS = [
+            {
+                pos: [315, 400],
+                info: {
+                    name: '天枢',
+                    desc: '北斗七星第一星，又称贪狼星，代表宇宙的开端'
+                }
+            },
+            {
+                pos: [400, 325],
+                info: {
+                    name: '天璇',
+                    desc: '北斗第二星，又称巨门星，主掌地理方位'
+                }
+            },
+            {
+                pos: [460, 310],
+                info: {
+                    name: '天玑',
+                    desc: '北斗第三星，又称禄存星，象征财富与福祉'
+                }
+            },
+            {
+                pos: [545, 300],
+                info: {
+                    name: '天权',
+                    desc: '北斗第四星，又称文曲星，主文运与智慧'
+                }
+            },
+            {
+                pos: [580, 343],
+                info: {
+                    name: '玉衡',
+                    desc: '北斗第五星，又称廉贞星，代表法律与公正'
+                }
+            },
+            {
+                pos: [690, 310],
+                info: {
+                    name: '开阳',
+                    desc: '北斗第六星，又称武曲星，象征武力与勇气',
+                    companion: '附有辅星'
+                }
+            },
+            {
+                pos: [670, 235],
+                info: {
+                    name: '摇光',
+                    desc: '北斗第七星，又称破军星，主变革与创新'
+                }
+            }
+        ];
+
+        // 工具提示控制
+        const tooltip = document.getElementById('tooltip');
+        let activeStar = null;
+
+        function drawRadial(ctx, x, y, r, color, r1, r2) {
+            const gradient = ctx.createRadialGradient(x, y, r1, x, y, r2);
+            gradient.addColorStop(0, "white");
+            gradient.addColorStop(1, color || "rgba(55,51,237,0.5)");
+            
+            ctx.beginPath();
+            ctx.fillStyle = gradient;
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawConnection(ctx, x1, y1, x2, y2, color = "rgba(55,51,237,0.4)", width = 1) {
+            ctx.save();
+            ctx.lineWidth = width;
+            ctx.strokeStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function randomColor() {
+            return '#' + Math.floor(Math.random()*0x1000000).toString(16).padStart(6,'0');
+        }
+
+        function initStarfield() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 设置画布为全屏尺寸
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // 星座坐标数据
+            const constellations = {
+                dipper: {
+                    stars: DIPPER_STARS.map(star => star.pos),
+                    lines: [[0,1], [1,2], [2,3], [3,4], [4,5], [5,6]]
+                },
+                bear: {
+                    stars: [[590,420], [679,615], [690,460], [820,500], 
+                           [845,340], [905,365], [1000,420]],
+                    lines: [[0,1], [1,2], [2,3], [3,4], [4,5], [5,6]]
+                }
+            };
+
+            // 鼠标移动处理
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // 检测悬停的星星
+                const currentStar = DIPPER_STARS.find(star => {
+                    const [sx, sy] = star.pos;
+                    return Math.sqrt((x - sx)**2 + (y - sy)**2) < 15;
+                });
+
+                if (currentStar) {
+                    if (currentStar !== activeStar) {
+                        activeStar = currentStar;
+                        // 更新提示内容
+                        tooltip.innerHTML = `<h3>${currentStar.info.name}</h3>
+                                           <p>${currentStar.info.desc}</p>`;
+                        tooltip.style.opacity = '1';
+                    }
+                    // 更新提示位置
+                    tooltip.style.left = (e.clientX + 15) + 'px';
+                    tooltip.style.top = (e.clientY + 15) + 'px';
+                } else {
+                    activeStar = null;
+                    tooltip.style.opacity = '0';
+                }
+            });
+
+            // 全屏粒子效果
+            let starCount = 0;
+            const starInterval = setInterval(() => {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const sizeVariation = starCount % 4;
+                
+                switch(sizeVariation) {
+                    case 0: drawRadial(ctx, x, y, 1.5, randomColor(), 1, 2); break;
+                    case 1: drawRadial(ctx, x, y, 1.5, null, 1, 1); break;
+                    case 2: drawRadial(ctx, x, y, 1, randomColor(), 1, 1); break;
+                    case 3: drawRadial(ctx, x, y, 2, randomColor(), 0.5, 2.5); break;
+                }
+
+                if(++starCount >= 800) clearInterval(starInterval);
+            }, 10);
+
+            // 绘制北斗七星
+            setTimeout(() => {
+                let starIndex = 0;
+                const starTimer = setInterval(() => {
+                    const [x, y] = constellations.dipper.stars[starIndex];
+                    drawRadial(ctx, x, y, 8, null, 3, 8);
+                    if(++starIndex >= constellations.dipper.stars.length) clearInterval(starTimer);
+                }, 900);
+
+                let lineIndex = 0;
+                const lineTimer = setInterval(() => {
+                    const [start, end] = constellations.dipper.lines[lineIndex];
+                    const p1 = constellations.dipper.stars[start];
+                    const p2 = constellations.dipper.stars[end];
+                    drawConnection(ctx, p1[0], p1[1], p2[0], p2[1]);
+                    if(++lineIndex >= constellations.dipper.lines.length) clearInterval(lineTimer);
+                }, 1100);
+            }, 9000);
+
+            // 绘制大熊座（保持原样）
+            setTimeout(() => {
+                let starIndex = 0;
+                const starTimer = setInterval(() => {
+                    const [x, y] = constellations.bear.stars[starIndex];
+                    drawRadial(ctx, x, y, 4, randomColor(), 2, 4);
+                    if(++starIndex >= constellations.bear.stars.length) clearInterval(starTimer);
+                }, 700);
+
+                const bearLines = [
+                    [580,343], [590,420], [679,615], [590,420], [690,460],
+                    [820,500], [690,460], [590,420], [845,340], [905,365],
+                    [1000,420], [905,365], [845,340], [825,275], [835,215],
+                    [840,165], [970,240]
+                ];
+
+                let lineIndex = 0;
+                const lineTimer = setInterval(() => {
+                    if(lineIndex < bearLines.length - 1) {
+                        const p1 = bearLines[lineIndex];
+                        const p2 = bearLines[lineIndex + 1];
+                        drawConnection(ctx, p1[0], p1[1], p2[0], p2[1], "skyblue");
+                    }
+                    if(++lineIndex >= bearLines.length) clearInterval(lineTimer);
+                }, 800);
+            }, 17000);
+        }
+
+        window.onload = initStarfield;
+    </script>
+</body>
+</html>

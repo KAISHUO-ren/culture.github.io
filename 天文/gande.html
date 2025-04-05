@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>甘德 - 先秦著名天文学家</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+    <style>
+        /* 完整保留所有原始样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .left-panel {
+            width: 30%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .left-panel img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .left-panel img:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .right-panel {
+            margin-left: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-left: 40px;
+        }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .timeline-item:hover::before {
+            background-color: #ff4500;
+        }
+        .timeline-content {
+            transition: all 0.3s ease;
+            transform-origin: left center;
+            opacity: 0.95;
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            opacity: 1;
+        }
+        .books-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .book-info {
+            width: 45%;
+        }
+        .book-info img {
+            max-width: 100%;
+            height: auto;
+        }
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        .book-images img {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .book-images img:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .left-panel ul li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .left-panel ul li:hover {
+            background-color: rgba(255,99,71,0.1);
+            transform: translateX(5px);
+        }
+
+        /* 新增点击提示样式 */
+        .click-hint {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(255, 165, 0, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+        #book-link {
+            position: relative;
+            display: inline-block;
+        }
+        #book-link:hover .click-hint {
+            opacity: 1;
+            transform: translateY(-5px);
+            background: rgba(255, 140, 0, 0.9);
+        }
+        #book-link:hover img {
+            transform: 
+                scale(1.05) 
+                rotate(2deg)
+                perspective(1000px) 
+                translateZ(20px);
+            filter: brightness(1.1);
+        }
+
+        /* 完整保留原有天文可视化样式 */
+        .jupiter-section {
+            margin: 40px 0;
+            padding: 20px;
+            background: rgba(0,0,0,0.9);
+            border-radius: 12px;
+            position: relative;
+            height: 500px;
+        }
+        .jupiter-system {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .jupiter {
+            width: 150px;
+            height: 150px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 30% 30%, 
+                    #e67e22 0%, 
+                    #c88d5e 30%, 
+                    #6b4226 60%,
+                    #4a2d1b 100%),
+                linear-gradient(45deg,
+                    transparent 40%,
+                    rgba(105, 65, 39, 0.6) 50%,
+                    transparent 60%
+                );
+            box-shadow: 
+                0 0 80px rgba(200, 141, 94, 0.3),
+                inset 10px -10px 30px rgba(0,0,0,0.3);
+            animation: jupiter-rotate 30s linear infinite;
+        }
+        .orbit {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbit-rotate 25s linear infinite;
+        }
+        .moon {
+            width: 30px;
+            height: 30px;
+            background: #d4a373;
+            border-radius: 50%;
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px #d4a373;
+        }
+        .moon::after {
+            content: "木卫三";
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 14px;
+            font-family: 'Microsoft YaHei', sans-serif;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        @keyframes jupiter-rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes orbit-rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(-360deg); }
+        }
+
+        .comparison-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 40px 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        #planetChart {
+            height: 350px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 左侧面板 -->
+<div class="left-panel">
+    <img src="images/A甘德.webp" 
+         style="width: 300px;height: 400px;object-fit:cover;border-radius:8px;">
+    <h2>甘德——先秦著名天文学家</h2>
+    <h2>主要成就</h2>
+    <ul>
+        <li>世界上最古老的星表：甘德编撰的《甘石星经》是世界上现存最早的星表之一，
+            该星表记录了八百颗恒星的名字，并首次对木、火、土、金、水五大行星的运行
+            进行了定量研究，提出了它们出没的规律。</li>
+        <li>创立全天恒星区划命名系统：甘德与石申各自独立创立了全天恒星区划命名系统，他们的系统对恒星分布、位置的定性描述产生了深远影响。</li>
+        <li>发现行星逆行现象并提出行星会合周期概念：甘德通过长期观测，发现了火星和金星的逆行现象，并提出了行星会合周期的概念。</li>
+        <li>木星的观测与研究：甘德对木星的观测尤为精细，著有关于木星的专著《岁星经》。</li>
+        <li>甘氏占星流派创始人：甘德还以占星家闻名，是在当时和对后世都产生重大影响的甘氏占星流派的创始人。</li>
+    </ul>
+</div>
+
+<!-- 右侧面板 -->
+<div class="right-panel">
+    <!-- 时间轴 -->
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>约公元前400年</h3>
+                <p>出生于战国时期齐国（今山东省境内）</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>公元前4世纪中期至晚期</h3>
+                <p>进行大量天文观测，发现行星逆行现象，测定行星会合周期，编制古老星表。</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>公元前4世纪晚期</h3>
+                <p>与石申各自独立创立全天恒星区划命名系统，为后世天文学提供基础。</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>天文学研究期间及之后</h3>
+                <p>成为甘氏占星流派的创始人，占星观点和理论产生广泛影响。</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>天文学研究后期</h3>
+                <p>著《天文星占》8卷、《岁星经》等。与石申的天文学著作结合，形成现存世界上最早的天文学著作之一《甘石星经》。</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>约公元前360年前后</h3>
+                <p>逝世</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 行星周期对比 -->
+    <div class="comparison-card">
+        <h2 style="color: #d4af37; border-bottom: 2px solid #5a7d7c; padding-bottom: 1rem;">古今行星周期对比</h2>
+        <div id="planetChart"></div>
+    </div>
+
+    <!-- 木星系统 -->
+    <div class="jupiter-section">
+        <div class="jupiter-system">
+            <div class="orbit" style="width: 400px; height: 400px;">
+                <div class="moon"></div>
+            </div>
+            <div class="jupiter"></div>
+        </div>
+        <div style="position: absolute; bottom: 20px; left: 20px; color: white;">
+            <h3 style="margin-bottom: 0.5rem;">公元前364年观测记录</h3>
+            <p style="margin: 0; font-size: 14px;">"岁星旁有小赤星，若附其侧"</p>
+        </div>
+    </div>
+
+    <!-- 书籍部分 -->
+    <div class="books-section clearfix">
+        <div class="book-info">
+            <h2>著作书籍---《甘石星经》</h2>
+            <p>内容：《甘石星经》是一部天文学专著，甘经、石经各八卷，共十六卷，大致成书于战国时期。《甘石星经》是两书的合称，作者为当时的齐国人甘德和魏国人石申。甘德著有《天文星占》八卷，石申著有《天文》八卷，两书合称《甘石星经》。在春秋战国时期的天文成就中当属《甘石星经》最大，同时该书是中国也是世界上最早的一部天文学著作。据我国科学家席泽宗研究认为：甘德已观测到木星的卫星，比意大利伽利略和德国麦依尔的同一发现早近2000年。甘德、石申所测定的恒星记录，是世界上最早的恒星表。书中记有120颗恒星的位置，以现在的观察结果来看，还是比较准确的。它比欧洲第一个恒星表——希腊伊巴谷的星表早约200年。《甘石星经》入选中国世界纪录协会世界最早的天文学著作。</p>
+        </div>
+        <div class="book-images">
+            <a href="甘石星经.html" id="book-link">
+                <img src="images/AA甘石星经.png" alt="《甘石星经》"
+                     style="width: 200px;height: 300px;object-fit:cover;border-radius:8px;">
+                <span class="click-hint">点击查看</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 其他书籍部分保持不变 -->
+    <!-- ... -->
+</div>
+
+<script>
+    // 行星数据
+    const planets = [
+        { name: "岁星（木星）", cycle: 12, modern: 11.86 },
+        { name: "荧惑（火星）", cycle: 2, modern: 1.88 },
+        { name: "镇星（土星）", cycle: 28, modern: 29.5 }
+    ];
+
+    // 初始化行星图表
+    function initPlanetChart() {
+        const chart = echarts.init(document.getElementById('planetChart'));
+        const option = {
+            tooltip: {
+                trigger: 'axis',
+                formatter: params => `
+                    <div style="background: rgba(0,0,0,0.8); padding: 10px; border-radius: 6px;">
+                        <div style="color: #d4af37; margin-bottom: 5px;">${params[0].name}</div>
+                        <div>古代：<span style="color: #d4af37;">${params[0].value}年</span></div>
+                        <div>现代：<span style="color: #5a7d7c;">${params[1].value}年</span></div>
+                    </div>
+                `
+            },
+            legend: {
+                show: true, 
+                data: ['古代记录', '现代数据'],
+                textStyle: { color: '#fff' },
+                top: 10,
+                left: 'center',  // 水平居中
+                itemGap: 20      // 增加图例项间距
+            },
+            xAxis: {
+                type: 'category',
+                data: planets.map(p => p.name),
+                axisLabel: {
+                    color: '#fff',
+                    fontSize: 14,
+                    rotate: 30
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: 'rgba(255,255,255,0.2)'
+                    }
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    color: '#fff',
+                    fontSize: 14
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: 'rgba(255,255,255,0.1)'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '古代记录',
+                    type: 'bar',
+                    data: planets.map(p => p.cycle),
+                    itemStyle: {
+                        color: '#d4af37',
+                        borderRadius: [8, 8, 0, 0]
+                    },
+                    barWidth: '28%'
+                },
+                {
+                    name: '现代数据',
+                    type: 'bar',
+                    data: planets.map(p => p.modern),
+                    itemStyle: {
+                        color: '#5a7d7c',
+                        borderRadius: [8, 8, 0, 0]
+                    },
+                    barWidth: '28%'
+                }
+            ],
+            grid: {
+                top: '20%',
+                bottom: '15%',
+                containLabel: true
+            },
+            animationDuration: 1800
+        };
+        chart.setOption(option);
+    }
+
+    // 页面初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        initPlanetChart();
+        window.addEventListener('resize', () => {
+            echarts.getInstanceByDom(document.getElementById('planetChart'))?.resize();
+        });
+    });
+</script>
+</body>
+</html>

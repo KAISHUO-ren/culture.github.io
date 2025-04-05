@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Aries Constellation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            display: flex;
+            height: 100vh;
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* 左侧文字区 */
+        .info-panel {
+            width: 20vw;
+            padding: 20px;
+            border-right: 1px solid #333;
+            overflow-y: auto;
+        }
+        
+        /* 右侧画布区 */
+        .canvas-container {
+            width: 80vw;
+            position: relative;
+        }
+        
+        canvas {
+            background: #000;
+        }
+        
+        h2 {
+            color: #FF6B35;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            color: #FF704D;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧文字介绍 -->
+    <div class="info-panel">
+        <h2>【星】星日馬凶．名李忠</h2>
+        <div class="section">
+            <span class="highlight">基本特征</span><br>
+            为日，为马。为南方第四宿，居朱雀之目，鸟类的眼睛多如星星般明亮，故由此而得名“星”。<br>
+        </div>
+        
+        <div class="section">
+            <span class="highlight">性格画像</span><br>
+            ✓星宿日好造新房．進職加官近帝王<br>
+            ✓不可埋葬並放水．凶星臨位女人亡<br>
+            ✓生離死別無心戀．要自歸休別嫁郎<br>
+            ✓孔子九曲殊難度．放水開門天命傷<br>
+        </div>
+
+        <div class="section">
+            <span class="highlight">宜忌</span><br>
+            宜：婚禮、播種。<br>
+            忌：喪儀。<br>
+            此日出生之人多福，萬事如願。<br>
+        </div>
+    </div>
+
+    <!-- 右侧星座画布 -->
+    <div class="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 自适应布局
+        function resize() {
+            canvas.width = document.querySelector('.canvas-container').clientWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // 虚星图数据
+        const ariesData = [
+            [[0.5,0.1],[0.43,0.21],[0.55,0.20],[0.5,0.3],[0.49,0.53],[0.5,0.6],[0.5,0.67]],
+            [[0,1,3,,4,5,6],[0,2,3]]
+        ];
+
+        // 绘制星座
+        function drawAries() {
+            // 绘制星点
+            ariesData[0].forEach(point => {
+                const x = point[0] * canvas.width;
+                const y = point[1] * canvas.height;
+                ctx.fillStyle = '#FF6B35';
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 绘制连线
+            ctx.strokeStyle = '#FF704D';
+            ctx.lineWidth = 2;
+            ariesData[1].forEach(line => {
+                ctx.beginPath();
+                line.forEach((pointIndex, i) => {
+                    const x = ariesData[0][pointIndex][0] * canvas.width;
+                    const y = ariesData[0][pointIndex][1] * canvas.height;
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            });
+        }
+
+        // 初始化动画
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawAries();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

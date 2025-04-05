@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Aries Constellation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            display: flex;
+            height: 100vh;
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* 左侧文字区 */
+        .info-panel {
+            width: 20vw;
+            padding: 20px;
+            border-right: 1px solid #333;
+            overflow-y: auto;
+        }
+        
+        /* 右侧画布区 */
+        .canvas-container {
+            width: 80vw;
+            position: relative;
+        }
+        
+        canvas {
+            background: #000;
+        }
+        
+        h2 {
+            color: #FF6B35;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            color: #FF704D;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧文字介绍 -->
+    <div class="info-panel">
+        <h2>【箕】箕水豹吉．名馮異</h2>
+        <div class="section">
+            <span class="highlight">基本特征</span><br>
+            属水，为豹。为东方最后一宿，为龙尾摆动所引发之旋风。故箕宿好风，一旦特别明亮就是起风的预兆，因此又代表好调弄是非的人物、主口舌之象，故多凶。<br>
+        </div>
+        
+        <div class="section">
+            <span class="highlight">性格画像</span><br>
+            ✓箕星造作主高強．歲歲年年大吉昌<br>
+            ✓埋葬修墳大吉利．田蠶牛馬遍山岡<br>
+            ✓開門放水招田宅．篋滿金銀穀滿倉<br>
+            ✓福蔭高官加祿位．六親豐足樂安康<br>
+        </div>
+
+        <div class="section">
+            <span class="highlight">宜忌</span><br>
+            宜：建造、開池、開門、造屋、收財。<br>
+            忌：婚禮、裁衣。<br>
+            此日出生之人住所不定，年老有災，若有憐憫愛護他人之心，反而得福。<br>
+        </div>
+    </div>
+
+    <!-- 右侧星座画布 -->
+    <div class="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 自适应布局
+        function resize() {
+            canvas.width = document.querySelector('.canvas-container').clientWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // 虚星图数据
+        const ariesData = [
+            [[0.3,0.6],[0.40,0.38],[0.59,0.37],[0.66,0.65]],
+            [[0,1,2,3]]
+        ];
+
+        // 绘制星座
+        function drawAries() {
+            // 绘制星点
+            ariesData[0].forEach(point => {
+                const x = point[0] * canvas.width;
+                const y = point[1] * canvas.height;
+                ctx.fillStyle = '#FF6B35';
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 绘制连线
+            ctx.strokeStyle = '#FF704D';
+            ctx.lineWidth = 2;
+            ariesData[1].forEach(line => {
+                ctx.beginPath();
+                line.forEach((pointIndex, i) => {
+                    const x = ariesData[0][pointIndex][0] * canvas.width;
+                    const y = ariesData[0][pointIndex][1] * canvas.height;
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            });
+        }
+
+        // 初始化动画
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawAries();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Aries Constellation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            display: flex;
+            height: 100vh;
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* 左侧文字区 */
+        .info-panel {
+            width: 20vw;
+            padding: 20px;
+            border-right: 1px solid #333;
+            overflow-y: auto;
+        }
+        
+        /* 右侧画布区 */
+        .canvas-container {
+            width: 80vw;
+            position: relative;
+        }
+        
+        canvas {
+            background: #000;
+        }
+        
+        h2 {
+            color: #FF6B35;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            color: #FF704D;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧文字介绍 -->
+    <div class="info-panel">
+        <h2>【角】角木蛟吉．名鄧禹</h2>
+        <div class="section">
+            <span class="highlight">基本特征</span><br>
+            属木，为蛟。为东方七宿之首，有两颗星如苍龙的两角。<br>
+        </div>
+        
+        <div class="section">
+            <span class="highlight">性格画像</span><br>
+            ✓角星造作主榮昌．外進田財及女郎<br>
+            ✓嫁娶婚姻出貴子．文人及第見君王<br>
+            ✓惟有葬埋不可用．三年之後主瘟疫<br>
+            ✓起工修築墳基地．當前立見主人亡<br>
+        </div>
+
+        <div class="section">
+            <span class="highlight">宜忌</span><br>
+            宜：婚禮、旅行、穿新衣、動土、立柱、立門、裁衣、移徒。<br>
+            忌：葬儀。<br>
+            此日出生之人，壯年時多為妻子勞苦、至晚年萬事如意。<br>
+        </div>
+    </div>
+
+    <!-- 右侧星座画布 -->
+    <div class="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 自适应布局
+        function resize() {
+            canvas.width = document.querySelector('.canvas-container').clientWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // 虚星图数据
+        const ariesData = [
+            [[0.3,0.5],[0.7,0.4]],
+            [[0,1]]
+        ];
+
+        // 绘制星座
+        function drawAries() {
+            // 绘制星点
+            ariesData[0].forEach(point => {
+                const x = point[0] * canvas.width;
+                const y = point[1] * canvas.height;
+                ctx.fillStyle = '#FF6B35';
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 绘制连线
+            ctx.strokeStyle = '#FF704D';
+            ctx.lineWidth = 2;
+            ariesData[1].forEach(line => {
+                ctx.beginPath();
+                line.forEach((pointIndex, i) => {
+                    const x = ariesData[0][pointIndex][0] * canvas.width;
+                    const y = ariesData[0][pointIndex][1] * canvas.height;
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            });
+        }
+
+        // 初始化动画
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawAries();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

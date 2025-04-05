@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Aries Constellation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            display: flex;
+            height: 100vh;
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* 左侧文字区 */
+        .info-panel {
+            width: 20vw;
+            padding: 20px;
+            border-right: 1px solid #333;
+            overflow-y: auto;
+        }
+        
+        /* 右侧画布区 */
+        .canvas-container {
+            width: 80vw;
+            position: relative;
+        }
+        
+        canvas {
+            background: #000;
+        }
+        
+        h2 {
+            color: #FF6B35;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            color: #FF704D;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧文字介绍 -->
+    <div class="info-panel">
+        <h2>【鬼】鬼金羊凶．名王霸</h2>
+        <div class="section">
+            <span class="highlight">基本特征</span><br>
+            属金，为羊。为南方第二宿，犹如一顶戴在朱雀头上的帽子，鸟类在受到惊吓时头顶羽毛成冠状，人们把最害怕而又并不存在的东西称作“鬼”，鬼宿因此而得名，主惊吓，故多凶。<br>
+        </div>
+        
+        <div class="section">
+            <span class="highlight">性格画像</span><br>
+            ✓鬼星起造卒人亡．堂前不見主人郎<br>
+            ✓埋葬此日官祿至．兒孫代代近君王<br>
+            ✓開門放水須傷死．嫁給夫妻不久長<br>
+            ✓修土築牆傷產女．手扶雙女淚汪汪<br>
+        </div>
+
+        <div class="section">
+            <span class="highlight">宜忌</span><br>
+            宜：可下葬<br>
+            忌：建造、婚禮，往西方亦凶。<br>
+            此日出生之人少年時多勞心，必要刻苦耐勞，事業才能平坦。<br>
+        </div>
+    </div>
+
+    <!-- 右侧星座画布 -->
+    <div class="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 自适应布局
+        function resize() {
+            canvas.width = document.querySelector('.canvas-container').clientWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // 虚星图数据
+        const ariesData = [
+            [[0.5,0.2],[0.7,0.4],[0.5,0.6],[0.3,0.4],[0.5,0.4]],
+            [[0,1,2,3],[4]]
+        ];
+
+        // 绘制星座
+        function drawAries() {
+            // 绘制星点
+            ariesData[0].forEach(point => {
+                const x = point[0] * canvas.width;
+                const y = point[1] * canvas.height;
+                ctx.fillStyle = '#FF6B35';
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 绘制连线
+            ctx.strokeStyle = '#FF704D';
+            ctx.lineWidth = 2;
+            ariesData[1].forEach(line => {
+                ctx.beginPath();
+                line.forEach((pointIndex, i) => {
+                    const x = ariesData[0][pointIndex][0] * canvas.width;
+                    const y = ariesData[0][pointIndex][1] * canvas.height;
+                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            });
+        }
+
+        // 初始化动画
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawAries();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

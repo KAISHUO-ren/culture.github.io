@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国古代部分天文学家</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a2e;
+            font-family: "Microsoft YaHei", sans-serif;
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            color: #6c5ce7;
+            margin: 30px 0;
+            font-size: 2.8em;
+            text-shadow: 0 0 15px rgba(108,92,231,0.5);
+        }
+        .canvas-wrapper {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            margin: 50px auto;
+            background: rgba(0,0,0,0.7);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(108,92,231,0.3);
+            overflow: hidden;
+        }
+        #canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .name-link {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            text-decoration: none;
+            color: #4bc0c0;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s;
+            z-index: 2;
+            padding: 5px 15px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 25px;
+            border: 1px solid #4bc0c0;
+            box-shadow: 0 0 15px rgba(75,192,192,0.3);
+        }
+        .name-link:hover {
+            color: #ff6b6b;
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 25px rgba(255,107,107,0.5);
+        }
+
+        #tooltip {
+            position: fixed;
+            background: rgba(0,0,0,0.95);
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 280px;
+            max-width: 350px;
+            pointer-events: none;
+            box-shadow: 0 0 30px rgba(52,152,219,0.3);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 999;
+            line-height: 1.6;
+            font-size: 14px;
+            color: #ecf0f1;
+        }
+        #tooltip div:first-child {
+            color: #3498db;
+            font-size: 20px;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+        .constellation-line {
+            stroke: rgba(75,192,192,0.15);
+            stroke-width: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>中国古代部分天文学家概述图</h1>
+        <span style="color: #4bc0c0; font-size: 16px;">探索中国古代天文大家的星辰轨迹，悬停星点查看成就，点击名字穿越时空</span>
+        <div class="canvas-wrapper">
+            <canvas id="canvas" width="800" height="800"></canvas>
+            <div id="nameLinks"></div>
+            <div id="tooltip"></div>
+        </div>
+    </div>
+
+<script>
+
+const astronomers = [
+    { name: '甘德', dynasty: '战国', insights: '与石申合著《甘石星经》，记录800多颗恒星位置', url: 'gande.html' },
+    { name: '石申', dynasty: '战国', insights: '编制最早星表，发现行星逆行现象', url: 'shishen.html' },
+    { name: '祖冲之', dynasty: '南朝', insights: '制定《大明历》，精确测定回归年长度', url: 'zuchongzhi.html' },
+    { name: '郭守敬', dynasty: '元朝', insights: '创制简仪，编制《授时历》', url: 'guoshoujing.html' },
+    { name: '徐光启', dynasty: '明朝', insights: '《崇祯历书》主要编译者，融合中西天文', url: 'xuguangqi.html' },
+    { name: '梅文鼎', dynasty: '清朝', insights: '融会中西天文数学，著《历算全书》', url: 'meiwending.html' }
+];
+
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+const nameLinks = document.getElementById('nameLinks');
+const baseRadius = 320;
+
+// 绘制星空背景（保持原函数不变）
+function drawStarfield() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // 绘制银河
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, 'rgba(75,192,192,0.05)');
+    gradient.addColorStop(1, 'rgba(108,92,231,0.05)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 绘制星座连线
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(75,192,192,0.15)';
+    ctx.setLineDash([5, 10]);
+    astronomers.forEach((_, i) => {
+        if(i % 2 === 0) return;
+        const angle1 = (Math.PI * 2 / astronomers.length) * i - Math.PI/2;
+        const angle2 = (Math.PI * 2 / astronomers.length) * (i+1) - Math.PI/2;
+        ctx.moveTo(400 + Math.cos(angle1)*baseRadius, 400 + Math.sin(angle1)*baseRadius);
+        ctx.lineTo(400 + Math.cos(angle2)*baseRadius, 400 + Math.sin(angle2)*baseRadius);
+    });
+    ctx.stroke();
+}
+
+function drawCentralNebula() {
+    // 绘制星云特效
+    const gradient = ctx.createRadialGradient(400,400,0,400,400,400);
+    gradient.addColorStop(0, 'rgba(108,92,231,0.3)');
+    gradient.addColorStop(1, 'rgba(108,92,231,0)');
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(400, 400, 400, 0, Math.PI*2);
+    ctx.fill();
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawStarfield();
+    drawCentralNebula();
+
+    // 中心天体
+    ctx.save();
+    ctx.font = 'bold 72px 楷体';
+    ctx.fillStyle = 'rgba(75,192,192,0.8)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('天  文', 400, 400);
+    ctx.restore();
+
+    // 绘制天体节点
+    const center = { x: 400, y: 400 };
+    const angleStep = (Math.PI * 2) / astronomers.length;
+
+    astronomers.forEach((_, index) => {
+        const angle = angleStep * index - Math.PI/2;
+        const x = center.x + Math.cos(angle) * baseRadius;
+        const y = center.y + Math.sin(angle) * baseRadius;
+
+        // 绘制光晕
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, 20);
+        gradient.addColorStop(0, 'rgba(75,192,192,0.8)');
+        gradient.addColorStop(1, 'rgba(75,192,192,0)');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(x, y, 20, 0, Math.PI*2);
+        ctx.fill();
+
+        // 绘制星体
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, Math.PI*2);
+        ctx.fillStyle = '#4bc0c0';
+        ctx.fill();
+    });
+}
+
+function createLinks() {
+    const center = { x: 400, y: 400 };
+    const angleStep = (Math.PI * 2) / astronomers.length;
+
+    nameLinks.innerHTML = astronomers.map((person, index) => {
+        const angle = angleStep * index - Math.PI/2;
+        const x = center.x + Math.cos(angle) * baseRadius;
+        const y = center.y + Math.sin(angle) * baseRadius;
+        const offset = angle % (Math.PI*2) > Math.PI ? -60 : 60;
+        
+        return `<a class="name-link" href="${person.url}" 
+                 style="left: ${x + offset}px; top: ${y}px;">${person.name}</a>`;
+    }).join('');
+}
+
+canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    astronomers.forEach((person, index) => {
+        const angle = (Math.PI * 2 / astronomers.length) * index - Math.PI/2;
+        const nodeX = 400 + Math.cos(angle) * baseRadius;
+        const nodeY = 400 + Math.sin(angle) * baseRadius;
+
+        if (Math.hypot(mouseX - nodeX, mouseY - nodeY) < 15) {
+            const scaleX = rect.width / canvas.width;
+            const scaleY = rect.height / canvas.height;
+            const pageX = rect.left + nodeX * scaleX;
+            const pageY = rect.top + nodeY * scaleY;
+
+            tooltip.innerHTML = `
+                <div>
+                    ${person.name}
+                    <span style="color: #95a5a6;">（${person.dynasty}）</span>
+                </div>
+                <div style="color: #bdc3c7;">${person.insights}</div>
+            `;
+            
+            // 动态定位算法
+            const angleDeg = angle * (180 / Math.PI);
+            const offsetX = Math.cos(angle) * 80;
+            const offsetY = Math.sin(angle) * 80;
+            
+            let tipX = pageX + offsetX;
+            let tipY = pageY + offsetY;
+
+            // 边界约束
+            const padding = 20;
+            tipX = Math.max(padding, Math.min(window.innerWidth - tooltip.offsetWidth - padding, tipX));
+            tipY = Math.max(padding, Math.min(window.innerHeight - tooltip.offsetHeight - padding, tipY));
+
+            tooltip.style.left = `${tipX}px`;
+            tooltip.style.top = `${tipY}px`;
+            tooltip.style.opacity = 1;
+        }
+    });
+});
+
+canvas.addEventListener('mouseleave', () => {
+    tooltip.style.opacity = 0;
+});
+
+// 初始化
+draw();
+createLinks();
+</script>
+</body>
+</html>

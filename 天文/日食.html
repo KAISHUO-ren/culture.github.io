@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="og:title" content="日环食">
+    <meta property="og:description" content="日环食是指月球在接近地球的轨道上运行时，由于月球与地球之间的距离较近，月球的影子不能完全遮住太阳，而在太阳周围形成一道光环。">
+    <meta property="og:locale" content="zh_TW">
+    <meta property="og:type" content="website">
+    <title>日环食</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+            position: relative;
+        }
+
+        main {
+            background-image: url("./images/background.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            width: 100%;
+            min-height: 100vh;
+            animation: darken 20s linear infinite;
+        }
+
+        .sun {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            position: absolute;
+            top: 25%;
+            left: 25%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(#ba3, #f83);
+            border: none;
+            box-shadow: 0px 0px 15px 5px #fa3;
+            z-index: 1;
+        }
+
+        .sun:before {
+            content: "";
+            display: block;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: move 20s linear infinite;
+        }
+
+        /* 新增标注样式 */
+        .annotations {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 280px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+
+        .annotation-item {
+            margin-bottom: 1.5rem;
+            border-left: 3px solid #4CAF50;
+            padding-left: 1rem;
+        }
+
+        .annotation-title {
+            font-family: 'Microsoft YaHei', sans-serif;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .annotation-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        blockquote {
+            background: #f8f9fa;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin: 8px 0;
+            font-style: italic;
+            color: #4a5568;
+        }
+
+        @keyframes darken {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(0.3); }
+            100% { filter: brightness(1); }
+        }
+
+        @keyframes move {
+            0% {
+                transform: translate(100%, -200%);
+                background-color: rgba(200, 200, 200, 0.5);
+            }
+            35% { background-color: #646464; }
+            50% {
+                transform: translate(-50%, -50%);
+                background-color: black;
+            }
+            65% { background-color: #646464; }
+            100% {
+                transform: translate(-200%, 100%);
+                background-color: rgba(200, 200, 200, 0.5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <main></main>
+    <div class="sun"></div>
+
+    <!-- 新增右侧标注 -->
+    <div class="annotations">
+        <div class="annotation-item">
+            <h3 class="annotation-title">《交食蒙求》三卷</h3>
+            <div class="annotation-content">
+                <blockquote>「交食之算，必明里差。盖地有南北东西，食分时刻各异。以弧三角法，测日月高下，求其掩映之限，乃得真数。」</blockquote>
+                此处“里差”指地理经度差，梅文鼎结合西方球面三角学，修正了中国传统历法忽视地理位置对交食影响的缺陷。
+            </div>
+        </div>
+
+        <div class="annotation-item">
+            <h3 class="annotation-title">《历学骈枝》四卷</h3>
+            <div class="annotation-content">
+                <blockquote>「日躔盈缩，月离迟疾，皆由黄白二道之交而生食。推其初亏、食甚、复圆，必以平立定三差为纲。」</blockquote>
+                通过“平立定三差”内插法修正太阳和月亮运动的不均匀性，提升交食预测精度。
+            </div>
+        </div>
+
+        <div class="annotation-item">
+            <h3 class="annotation-title">《揆日候星纪要》</h3>
+            <div class="annotation-content">
+                <blockquote>「立表测日影，正午影最短为食甚之候。北直、江南、浙、闽四省表影各异，以里差校之，乃合天行。」</blockquote>
+                书中记录了梅文鼎通过实测验证交食理论的实践。他通过多地日影数据校准历法，证明交食时刻的区域性差异。
+            </div>
+        </div>
+    </div>
+</body>
+</html>

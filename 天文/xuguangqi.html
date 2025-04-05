@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>徐光启 - 明代著名天文学家</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .left-panel {
+            width: 30%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .left-panel img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .left-panel img:hover {
+            transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .right-panel {
+            margin-left: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-left: 40px; /* Space from fixed left panel */
+        }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .timeline-item:hover::before {
+            background-color: #ff4500;
+        }
+        .timeline-content {
+            transition: all 0.3s ease;
+            transform-origin: left center;
+            opacity: 0.95;
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            opacity: 1;
+        }
+        .books-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .book-info {
+            width: 45%;
+        }
+        .book-info img {
+            max-width: 100%;
+            height: auto;
+        }
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        .book-images img {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .book-images img:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .left-panel ul li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .left-panel ul li:hover {
+            background-color: rgba(255,99,71,0.1);
+            transform: translateX(5px);
+        }
+
+/* 时间轴点动画 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .timeline-item::before {
+            animation: pulse 2s infinite;
+        }
+        .timeline-item:hover::before {
+            animation: none;
+            transform: scale(1.3);
+        }
+
+        /* 优化原有过渡效果 */
+        .timeline-item::before {
+            transition: all 0.3s ease;
+        }
+         /* 新增选项卡样式 */
+         .tab-container {
+            margin-top: 40px;
+            position: relative;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-nav label {
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            background: #f5f5f5;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab-nav label:hover {
+            background: #ffece8;
+        }
+
+        .tab-nav input:checked + label {
+            background: #ff6347;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255,99,71,0.3);
+        }
+
+        .tab-content > div {
+            display: none;
+            padding: 25px;
+            background: white;
+            border-radius: 0 12px 12px 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            min-height: 300px;
+        }
+
+        #tab1:checked ~ .tab-content .content1,
+        #tab2:checked ~ .tab-content .content2,
+        #tab3:checked ~ .tab-content .content3 {
+            display: flex;
+            gap: 30px;
+        }
+
+        .content-text {
+            flex: 1;
+        }
+
+        .content-image {
+            width: 300px;
+            transition: transform 0.3s;
+        }
+
+        .content-image:hover {
+            transform: translateY(-5px);
+        }
+
+        /* 原有样式保留不变 */
+    </style>
+</head>
+<body>
+
+<div class="left-panel">
+    <img src="images/A徐光启.jpg" alt="徐光启"
+            style="width: 300px;height: 800px;object-fit:cover;border-radius:8px;">
+        <h2>徐光启 - 明代著名天文学家</h2>
+        <h2>主要成就</h2>
+    <ul>
+        <li>引进西方天文学知识：
+            徐光启积极引进西方的天文学知识，包括圆形地球的概念、经度和纬度的概念，以及星等的概念等。
+            他根据第谷星表和中国传统星表，提供了第一个全天性星图，这个星图后来成为清代星表的基础<br></li>
+        <li>徐光启认识到明末中国历法的落后状态，于是主持了历法的修订工作。
+            他以西法推算的历法最为精密，礼部奏请开设历局，以徐光启督修历法，使得改历工作终于走上正轨</li>
+        <li>编译《崇祯历书》：
+            徐光启主持编译了《崇祯历书》，这是一部集大成的天文学著作。
+            在《崇祯历书》中，他引进了球面和平面三角学的准确公式，并首先作了视差、蒙气差和时差的订正。</li>
+        <li>与西方传教士合作：
+            徐光启与多位西方传教士合作，如龙华民、庞迪峨、熊三拔、汤若望等，共同推动中西天文学的交流。
+            他与利玛窦合译了《几何原本》前六卷，这部著作的翻译不仅在数学领域产生了深远影响，也间接推动了天文学的发展。</li>
+        <li>传播西方天文学理念：
+            徐光启通过编译《崇祯历书》和撰写相关疏奏，传播了西方天文学的理念和方法。
+            他强调天文学的实践应用，提出了度数之学（即数学）在天文历法等多个领域的重要性。</li>
+    </ul>
+</div>
+
+<div class="right-panel">
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1562年</h3>
+                <p>徐光启出生于上海，自幼对实用科学知识感兴趣，如农桑水利等。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>1607年左右</h3>
+                <p>与利玛窦合作翻译《几何原本》前6卷，首次向中国介绍西方数学和天文学知识。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>崇祯二年（约1629年）</h3>
+                <p>领导中国历法史上最重要的一次改历运动，开始编译《崇祯历书》。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>崇祯年间（1628年-1644年）</h3>
+                <p>聘用邓玉函、罗雅谷、汤若望等传教士参与翻译西方天文学著作，介绍托勒玫、哥白尼、第谷、开普勒等人的天文学知识。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>《崇祯历书》编译期间</h3>
+                <p>引进圆形地球、经纬度、星等概念，提供第一个全天性星图，成为清代星表的基础。同时，引进球面和平面三角学的准确公式，进行视差、蒙气差和时差的订正。</p >
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <h3>直至去世（1633年）</h3>
+                <p>致力于天文学研究和历法修订，撰写相关疏奏，详细论述数学在天文历法等多个领域的应用，并建议开展分科研究。</p >
+            </div>
+        </div>
+    </div>
+    <div class="tab-container">
+        <input type="radio" name="tab" id="tab1" checked hidden>
+        <input type="radio" name="tab" id="tab2" hidden>
+        <input type="radio" name="tab" id="tab3" hidden>
+        
+        <div class="tab-nav">
+            <label for="tab1">📜 主要著作</label>
+            <label for="tab2">🌗 日月交会</label>
+            <label for="tab3">🪐 行星研究</label>
+        </div>
+        <div class="tab-content">
+            <!-- 主要著作 -->
+            <div class="content1">
+                <div class="content-text">
+                    <h2>《崇祯历书》</h2>
+                    <p>《崇祯历书》的内容丰富，结构严谨，共包括四十六种著作。根据内容可分为节次六目和日躔（推算太阳位置）、恒星（恒星位置数据）、月离（推算月亮位置）、日月交会（日月食推算）、五纬星（五大行星运动情况）、五星交会（五大行星的相对位置变化）等部分。同时，按各卷的性质和作用，又可分为基本五目：
+
+                        <br>法原：天文历法的有关理论，是《崇祯历书》的核心部分，共四十卷，约占全书的三分之一。
+                        <br>法数：天文数学用表。
+                        <br>法算：天文历法推算中使用的数学方法。
+                        <br>法器：天文仪器。
+                        <br>会通：中国和西方使用的有关单位换算表。
+                        <br>   
+                        <br>推动中国天文学发展：《崇祯历书》全面系统地介绍了西方天文学知识，形成了对中国已相对落后的传统天文学的冲击，使中国天文学的发展从此走上了一条吸收和融合西方天文学为主的新路。
+                        <br>  
+                        <br>中西天文学交流的桥梁：《崇祯历书》的编译过程中，西方传教士如邓玉函、龙华民、汤若望等人参与了工作，他们的贡献不仅在于天文学知识的传播，更在于中西文化的交流与融合。
+                        <br>  
+                        <br>后世影响深远：《崇祯历书》及其改编后的补刊本《西洋新法历书》被后世引述、应用和研究了三百余年，在中国自然科学史与中西交流史上的价值和影响是众所周知的。
+                        </p >
+                </div>
+                <a href="A崇祯历书详情页.html" class="content-image">
+                    <img src="images/A崇祯历书.jpg" alt="历书封面" 
+                         style="width:100%;height:400px;object-fit:cover;border-radius:8px;">
+                </a>
+            </div>
+
+            <!-- 日月交会 -->
+            <div class="content2">
+                <div class="content-text">
+                    <h3>《日躔历指·卷三》（1631）</h3>
+                    <blockquote>
+                        "推日月食者，必以视差为第一义。地半径差，月在高庳，所食时刻分数皆异。
+                        今以黄道求升度，以白道求交周，依第谷本法，加减蒙气，可得食甚真时。
+                        其法以地心为心，用三角形，算日月距地之远，以定视差。"
+                    </blockquote>
+                    <h3>《月离历指·卷四》（1632）</h3>
+                    <blockquote>
+                        "凡食时，月入暗虚。暗虚者，地景也。地非透明，日光所蔽，即成锥形之影。
+                        月行遇此，即为所入。推步之法，当以日月纬相距二十度内为可食限，
+                        依第谷立成表，算其入虚深浅，可得食分。"
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br><br><br>
+                        点击图片查看详情
+                    </blockquote>
+                </div>
+                <a href="徐光启日月.html" class="content-image">
+                    <img src="images/AAA徐光启日月.png" alt="日月食图示"
+                         style="width:100%;height:200px;object-fit:cover;border-radius:8px;">
+                </a>
+            </div>
+
+            <!-- 行星研究 -->
+            <div class="content3">
+                <div class="content-text">
+                    <h3>《五纬历指·卷一》（1633）</h3>
+                    <blockquote>
+                        "五星本天，古以为平圆，今以为椭圆。西儒第谷新法，谓星行黄道南纬度，
+                        本轮、均轮之外，更有次轮。今依其说，用三差法算之：
+                        一曰岁差，二曰视差，三曰黄赤道差。"
+                    </blockquote>
+                    <h3>《测天约说·卷下》（1629）</h3>
+                    <blockquote>
+                        "火、木、土三星，岁轮居本天之上；金、水二星，岁轮居本天之下。
+                        此第谷新论，实发古法所未备。今测得金、水伏见，与火星逆行，
+                        皆合若符契，可为定法。"
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <br><br><br>
+                        点击图片查看详情
+                    </blockquote>
+                </div>
+                <a href="五星徐光启.html" class="content-image">
+                    <img src="images/AAA五星徐光启.png" alt="行星轨迹" 
+                         style="width:100%;height:200px;object-fit:cover;border-radius:8px;">
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

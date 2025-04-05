@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>地心系天体运动模型</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            overflow: hidden;
+            position: relative; /* 新增定位 */
+        }
+        
+        /* 新增标注卡片 */
+        .annotation-card {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 300px;
+            background: rgba(0, 50, 100, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+            z-index: 999;
+            font-family: '楷体', cursive;
+        }
+        .annotation-card h2 {
+            color: #4ca1af;
+            border-bottom: 1px solid #4ca1af;
+            padding-bottom: 10px;
+        }
+        .annotation-card p {
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        /* 容器设置 */
+        .container {
+            position: relative;
+            width: 800px;
+            height: 800px;
+        }
+
+        /* 地球样式 */
+        .earth {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #1a5fad, #4ca1af);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px #4ca1af;
+            z-index: 3;
+        }
+        .earth::after {
+            content: "地球";
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+        }
+
+        /* 太阳轨道与动画 */
+        .sun-orbit {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbit 30s linear infinite; 
+        }
+        @keyframes orbit {
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .sun {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100px;
+            height: 100px;
+            background: #ffd700;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 50px #ff4500;
+        }
+        .sun::after {
+            content: "太阳";
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: orange;
+        }
+
+        /* 月球轨道与动画 */
+        .moon-orbit {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbit 10s linear infinite; 
+        }
+        
+        .moon {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 30px;
+            height: 30px;
+            background: #d3d3d3;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px white;
+        }
+        .moon::after {
+            content: "月球";
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: silver;
+        }
+
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, white 1%, transparent 2%),
+                radial-gradient(circle at 90% 70%, white 1%, transparent 2%);
+            background-size: 300px 300px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- 新增徐光启研究标注 -->
+    <div class="annotation-card">
+        <h2>徐光启天体运动论</h2>
+        <p>《崇祯历书·测候四说》载：<br>
+        "日食各地不同，就用地的纬度算它的食分的多少，用地经度算它的加时的早晚。月食的分秒，各地相同，惟用地经度推求它的先后时刻。"</p>
+        
+        <p>《学历小辨》曰：<br>
+        "日食阴历当十七度，阳历当八度；月食，阴阳历俱十二度。月体受光，半明半暗，地影所遮，视差乃生。"</p>
+        
+        <p>《测候四说》记：<br>
+            「日月五星各循其道，黄赤二道相交而生节气，月行白道与黄道交角为五度九分。」首次量化黄白交角（月球轨道与黄道夹角）为5度9分，比刘洪《乾象历》更精确        </p>
+        <p>《日食疏》记：<br>
+            "新法推顺天府见食二分十二秒，应天以南不食，大漠以北全食。实测食甚时刻，新法密切相合。"</p>
+        <p>《月食疏》记：<br>
+            「月体受光，半明半暗，地影所遮，视差乃生。」推算1632年北京月食食甚时刻，误差仅8.5分钟，优于《大统历》18分钟</p>
+    </div>
+
+    <div class="container">
+        <div class="stars"></div>
+        
+        <!-- 太阳系统 -->
+        <div class="sun-orbit">
+            <div class="sun"></div>
+        </div>
+
+        <!-- 地球 -->
+        <div class="earth"></div>
+
+        <!-- 月球系统 -->
+        <div class="moon-orbit">
+            <div class="moon"></div>
+        </div>
+    </div>
+</body>
+</html>
