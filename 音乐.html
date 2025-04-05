@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>现代听书播放器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 基础重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* 颜色变量 */
+        :root {
+            --primary: #2F80ED;
+            --secondary: #27AE60;
+            --text: #2D3436;
+            --glass: rgba(255, 255, 255, 0.95);
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--text);
+        }
+
+        /* 玻璃拟态容器 */
+        .player-glass {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* 头部样式 */
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .app-title {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 控制按钮 */
+        .audio-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .circle-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circle-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(47, 128, 237, 0.3);
+        }
+
+        /* 进度条样式 */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            margin: 1rem 0;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        .progress-dot {
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: none;
+        }
+
+        /* 时间显示 */
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 倍速选择器样式 */
+        .speed-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .speed-selector select {
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text);
+        }
+
+        /* 专辑网格 */
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .album-card {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .album-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .album-cover {
+            width: 100%;
+            height: 120px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+        /* 播放列表 - 优化版本 */
+        .playlist-items {
+            list-style: none;
+            margin-top: 1rem;
+            padding: 0 1rem;
+        }
+        .playlist-items li {
+            position: relative;
+            padding: 1.2rem 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .playlist-items li::before {
+            content: "▶";
+            position: absolute;
+            left: 1rem;
+            color: var(--primary);
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+        .playlist-items li:hover {
+            background: rgba(47, 128, 237, 0.05);
+            transform: translateX(8px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+        .playlist-items li:hover::before {
+            opacity: 1;
+        }
+        .playlist-items li span {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1em;
+            min-width: 2em;
+            text-align: right;
+        }
+        .playlist-items li.active {
+            background: linear-gradient(90deg, rgba(47, 128, 237, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+            padding-left: 3rem;
+        }
+        .playlist-items li.active::before {
+            content: "⏸";
+            opacity: 1;
+            left: 1.2rem;
+        }
+        /* 选项卡 */
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab-btn.active::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+            .player-glass {
+                padding: 1rem;
+            }
+            .album-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 播放列表歌曲名称样式优化 */
+        .song-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+        }
+        .song-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.3s ease; /* 新增过渡效果 */
+        }
+        /* 新增悬停效果 */
+        .song-title:hover {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .song-artist {
+            font-size: 0.9rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .song-duration {
+            font-size: 0.9rem;
+            color: #666;
+            min-width: 50px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <main class="player-glass">
+            <header class="player-header">
+                <h1 class="app-title">
+                    <i class="fas fa-podcast"></i>
+                    听书知识馆
+                </h1>
+                <div class="mode-controls">
+                    <button id="loop-mode" class="mode-btn circle-btn" title="单曲循环">
+                        <i class="fas fa-redo-alt"></i>
+                    </button>
+                    <button id="order-mode" class="mode-btn circle-btn active" title="顺序播放">
+                        <i class="fas fa-list-ol"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="audio-core">
+                <div class="speed-selector">
+                    <select id="playback-speed">
+                        <option value="0.75">0.75倍速</option>
+                        <option value="1.0" selected>1.0倍速</option>
+                        <option value="1.25">1.25倍速</option>
+                        <option value="1.5">1.5倍速</option>
+                        <option value="2.0">2.0倍速</option>
+                    </select>
+                </div>
+
+                <div class="time-display">
+                    <span id="current-time">0:00</span>
+                    <span id="total-time">0:00</span>
+                </div>
+                <div class="progress-container" id="progress-container">
+                    <div class="progress" id="progress"></div>
+                    <div class="progress-dot" id="progress-dot"></div>
+                </div>
+                <div class="audio-controls">
+                    <button id="prev" class="control-btn circle-btn" title="上一首">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button id="play-pause" class="control-btn circle-btn primary" title="播放/暂停">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button id="next" class="control-btn circle-btn" title="下一首">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                </div>
+                <audio id="audio-player" hidden>
+                    <source id="audio-source" src="audio/agriculture1.mp3" type="audio/mp3">
+                </audio>
+            </div>
+
+            <nav class="content-nav">
+                <div class="nav-tabs">
+                    <button class="tab-btn active" data-target="albums">知识专辑</button>
+                    <button class="tab-btn" data-target="playlist">播放列表</button>
+                </div>
+                
+                <div class="tab-content active" id="albums">
+                    <div class="album-grid">
+                        <article class="album-card" data-album="agriculture">
+                            <div class="album-cover">
+                                <i class="fas fa-tractor"></i>
+                            </div>
+                            <h3>农业</h3>
+                        </article>
+                        <article class="album-card" data-album="astronomy">
+                            <div class="album-cover">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h3>天文</h3>
+                        </article>
+                        <article class="album-card" data-album="medicine">
+                            <div class="album-cover">
+                                <i class="fas fa-briefcase-medical"></i>
+                            </div>
+                            <h3>医学</h3>
+                        </article>
+                        <article class="album-card" data-album="mathematics">
+                            <div class="album-cover">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <h3>数学</h3>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="playlist">
+                    <ul class="playlist-items" id="playlist">
+                        <!-- 播放列表将通过JavaScript生成 -->
+                    </ul>
+                </div>
+            </nav>
+        </main>
+    </div>
+
+    <script>
+        // 初始化播放器
+        const audioPlayer = document.getElementById('audio-player');
+        const playPauseBtn = document.getElementById('play-pause');
+        const nextBtn = document.getElementById('next');
+        const prevBtn = document.getElementById('prev');
+        const playlistEl = document.getElementById('playlist');
+        const progressContainer = document.getElementById('progress-container');
+        const progress = document.getElementById('progress');
+        const progressDot = document.getElementById('progress-dot');
+        const currentTimeEl = document.getElementById('current-time');
+        const totalTimeEl = document.getElementById('total-time');
+        const playbackSpeedSelect = document.getElementById('playback-speed');
+        const loopModeBtn = document.getElementById('loop-mode');
+        const orderModeBtn = document.getElementById('order-mode');
+        
+        let currentTrackIndex = 0;
+        let isDraggingProgress = false;
+        let playbackMode = 'order'; // 默认为顺序播放
+
+        // 模拟数据
+        const playlists = {
+            agriculture: [
+                { title: "包世臣", artist: "清代学者、书法家", duration: "2:41", file: "听书/农业/包世臣.mp3" },
+                { title: "氾胜之", artist: "西汉著名农学家", duration: "3:41", file: "听书/农业/氾胜之.mp3" },
+                { title: "陈旉", artist: "南宋农学家", duration: "2:28", file: "听书/农业/陈旉.mp3" },
+                { title: "贾思勰", artist: "北魏末年官员、农学家、思想家", duration: "2:10", file: "听书/农业/贾思勰.mp3" },
+                { title: "马一龙", artist: "明朝农学家", duration: "1:23", file: "听书/农业/马一龙.mp3" },
+                { title: "宋应星", artist: "中国明代科学家", duration: "4:39", file: "听书/农业/宋应星.mp3" },
+                { title: "王祯", artist: "中国元代农学家、机械设计制造家、木活字创造者", duration: "2:01", file: "听书/农业/王祯.mp3" },
+                { title: "徐光启", artist: "中国明代农艺师、天文学家、数学家", duration: "3:48", file: "听书/农业/徐光启.mp3" },
+                { title: "杨屾", artist: "古代中国杰出的农业教育家", duration: "2:47", file: "听书/农业/杨屾.mp3" },
+          
+            ],
+            astronomy: [
+                { title: "甘德", artist: "先秦时期著名的天文学家", duration: "2:21", file: "听书2/天文/甘德.mp3"},
+                { title: "郭守敬", artist: "中国元朝科学家", duration: "4:05", file: "听书2/天文/郭守敬.mp3" },
+                { title: "梅文鼎", artist: "清初著名天文、数学家", duration: "4:27", file: "听书2/天文/梅文鼎.mp3"},
+                { title: "石申", artist: "战国中期魏国天文学、占星学家", duration: "1:15", file: "听书2/天文/石申.mp3"},
+                { title: "苏颂", artist: "中国北宋中期官员，天文学家、药物学家", duration: "2:20", file: "听书2/天文/苏颂.mp3"},
+                { title: "徐光启", artist: "中国明代农艺师、天文学家、数学家", duration: "3:04", file: "听书2/天文/徐光启.mp3"},
+                { title: "一行", artist: "唐朝著名天文学家、高僧", duration: "3:06", file: "听书2/天文/一行.mp3"},
+                { title: "张衡", artist: "中国东汉时期科学家、文学家", duration: "3:25", file: "听书2/天文/张衡.mp3"},
+                { title: "祖冲之", artist: "南北朝时期杰出的数学家、天文学家", duration: "3:22", file: "听书2/天文/祖冲之.mp3"}
+                
+            ],
+            medicine: [
+                { title: "扁鹊", artist: "春秋战国时期名医", duration: "1:58", file: "听书2/医学/扁鹊.mp3" },
+                { title: "葛洪", artist: "南宋时期政治家、文人", duration: "2:35", file: "听书2/医学/葛洪.mp3" },
+                { title: "华佗", artist: "东汉末年医学家", duration: "5:49", file: "听书2/医学/华佗.mp3" },
+                { title: "李时珍", artist: "明代医药学家", duration: "4:35", file: "听书2/医学/李时珍.mp3" },
+                { title: "孙思邈", artist: "唐代医药学家", duration: "2:10", file: "听书2/医学/孙思邈.mp3" },
+                { title: "王清任", artist: "清代医学家", duration: "2:35", file: "听书2/医学/王清任.mp3" },
+                { title: "吴有性", artist: "明末清初传染病学家", duration: "14:39", file: "听书2/医学/吴有性.mp3" },
+                { title: "叶天士", artist: "清朝中期医学家、温病学奠基人之一", duration: "2:03", file: "听书2/医学/叶天士.mp3" },
+                { title: "张仲景", artist: "东汉末年医学家、建安三神医之一", duration: "3:16", file: "听书2/医学/张仲景.mp3" },
+            ],
+            mathematics: [
+                { title: "李善兰", artist: "中国近代数学家", duration: "2:07", file: "听书/数学/李善兰.mp3" },
+                { title: "李治", artist: "金元时期数学家、文学家、诗人", duration: "3:17", file: "听书/数学/李治.mp3" },  
+                { title: "刘徽", artist: "魏晋时期著名数学家", duration: "3:34", file: "听书/数学/刘徽.mp3" },  
+                { title: "梅文鼎", artist: "清初著名天文、数学家", duration: "2:29", file: "听书/数学/梅文鼎.mp3" },  
+                { title: "秦九韶", artist: "南宋数学家", duration: "1:15", file: "听书/数学/秦九韶.mp3" },  
+                { title: "徐光启", artist: "中国明代农艺师、天文学家、数学家", duration: "2:41", file: "听书/数学/徐光启.mp3" },  
+                { title: "杨辉", artist: "南宋著名数学家", duration: "3:30", file: "听书/数学/杨辉.mp3" },  
+                { title: "朱世杰", artist: "元代数学家、教育家", duration: "2:51", file: "听书/数学/朱世杰.mp3" },  
+                { title: "祖冲之", artist: "南北朝时期杰出的数学家、天文学家", duration: "3:22", file: "听书/数学/祖冲之.mp3" },  
+            ]
+        };
+
+        // 生成播放列表
+        function generatePlaylist(album) {
+            playlistEl.innerHTML = playlists[album]
+                .map((track, index) => `
+                    <li data-track="${track.file}" data-index="${index}">
+                        <span>${index + 1}.</span>
+                        <div class="song-info">
+                            <div class="song-title">${track.title}</div>
+                            <div class="song-artist">${track.artist}</div>
+                        </div>
+                        <div class="song-duration">${track.duration}</div>
+                    </li>
+                `)
+                .join('');
+
+            // 新增播放列表点击事件
+            playlistEl.querySelectorAll('li').forEach(item => {
+                item.addEventListener('click', () => {
+                    const source = document.getElementById('audio-source');
+                    source.src = item.dataset.track;
+                    audioPlayer.load();
+                    audioPlayer.play();
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    currentTrackIndex = parseInt(item.dataset.index);
+                });
+            });
+        }
+
+        // 专辑点击事件
+        document.querySelectorAll('.album-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const album = card.dataset.album;
+                generatePlaylist(album);
+                document.querySelector('.tab-btn[data-target="playlist"]').click();
+            });
+        });
+
+        // 播放控制
+        playPauseBtn.addEventListener('click', () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                audioPlayer.pause();
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        });
+
+        // 下一个音乐按钮点击事件
+        nextBtn.addEventListener('click', () => {
+            const playlistItems = playlistEl.querySelectorAll('li');
+            if (playlistItems.length === 0) return;
+
+            currentTrackIndex = (currentTrackIndex + 1) % playlistItems.length;
+            const nextTrackItem = playlistItems[currentTrackIndex];
+            
+            const source = document.getElementById('audio-source');
+            source.src = nextTrackItem.dataset.track;
+            audioPlayer.load();
+            audioPlayer.play();
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        });
+
+        // 上一个音乐按钮点击事件
+        prevBtn.addEventListener('click', () => {
+            const playlistItems = playlistEl.querySelectorAll('li');
+            if (playlistItems.length === 0) return;
+
+            currentTrackIndex = (currentTrackIndex - 1 + playlistItems.length) % playlistItems.length;
+            const prevTrackItem = playlistItems[currentTrackIndex];
+            
+            const source = document.getElementById('audio-source');
+            source.src = prevTrackItem.dataset.track;
+            audioPlayer.load();
+            audioPlayer.play();
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        });
+
+        // 播放模式切换
+        loopModeBtn.addEventListener('click', () => {
+            playbackMode = 'loop';
+            loopModeBtn.classList.add('active');
+            orderModeBtn.classList.remove('active');
+        });
+
+        orderModeBtn.addEventListener('click', () => {
+            playbackMode = 'order';
+            orderModeBtn.classList.add('active');
+            loopModeBtn.classList.remove('active');
+        });
+
+        // 监听音频播放结束事件
+        audioPlayer.addEventListener('ended', () => {
+            if (playbackMode === 'loop') {
+                // 单曲循环：重新播放当前歌曲
+                audioPlayer.currentTime = 0;
+                audioPlayer.play();
+            } else if (playbackMode === 'order') {
+                // 顺序播放：播放下一首歌曲
+                nextBtn.click();
+            }
+        });
+
+        // 选项卡切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.target).classList.add('active');
+            });
+        });
+
+        // 更新播放进度条
+        function updateProgress() {
+            const { duration, currentTime } = audioPlayer;
+            if (duration) {
+                const progressPercent = (currentTime / duration) * 100;
+                progress.style.width = `${progressPercent}%`;
+                progressDot.style.left = `${progressPercent}%`;
+                progressDot.style.display = 'block';
+
+                // 更新时间显示
+                currentTimeEl.textContent = formatTime(currentTime);
+                totalTimeEl.textContent = formatTime(duration);
+            }
+        }
+
+        // 格式化时间显示
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // 点击进度条跳转
+        progressContainer.addEventListener('click', (e) => {
+            const width = progressContainer.clientWidth;
+            const clickPosition = e.offsetX;
+            const duration = audioPlayer.duration;
+            audioPlayer.currentTime = (clickPosition / width) * duration;
+        });
+
+        // 拖动进度条时的事件处理
+        progressContainer.addEventListener('mousedown', () => {
+            isDraggingProgress = true;
+            progressDot.style.display = 'block';
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDraggingProgress = false;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDraggingProgress) {
+                const width = progressContainer.clientWidth;
+                const clickPosition = e.offsetX;
+                const duration = audioPlayer.duration;
+                audioPlayer.currentTime = (clickPosition / width) * duration;
+            }
+        });
+
+        // 监听音频播放事件
+        audioPlayer.addEventListener('timeupdate', updateProgress);
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            totalTimeEl.textContent = formatTime(audioPlayer.duration);
+        });
+
+        // 倍速功能
+        playbackSpeedSelect.addEventListener('change', () => {
+            audioPlayer.playbackRate = parseFloat(playbackSpeedSelect.value);
+        });
+
+        // 初始化默认播放列表
+        generatePlaylist('agriculture');
+    </script>
+</body>
+</html>

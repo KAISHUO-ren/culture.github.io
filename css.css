@@ -1,0 +1,429 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+#screen {
+  width: 9999px;
+  height: 9999px;
+  animation: 20s cartoon1 infinite;
+}
+#screen img {
+  float: left;
+}
+#tv {
+  width: 730px;
+  height: 454px;
+  overflow: hidden;
+}
+@keyframes cartoon1 {
+    0% {}
+    11% {transform: translateX(-730px)}
+    12% {transform: translateX(-730px)}
+    
+    22% {transform: translateX(-1460px)}
+    23% {transform: translateX(-1460px)}
+    
+    33% {transform: translateX(-2190px)}
+    34% {transform: translateX(-2190px)}
+    
+    44% {transform: translateX(-2920px)}
+    45% {transform: translateX(-2920px)}
+
+    55% {transform: translateX(-3650px)}
+    56% {transform: translateX(-3650px)}
+    
+    66% {transform: translateX(-4380px)}
+    67% {transform: translateX(-4380px)}
+    
+    77% {transform: translateX(-5110px)}
+    78% {transform: translateX(-5110px)}
+    
+    88% {transform: translateX(-5840px)}
+    89% {transform: translateX(-5840px)}
+    99% {transform: translateX(-6570px)}
+    100% {transform: translateX(-6570px)}
+}
+h1{
+    position:absolute;
+    left: 10%;  /* 改用百分比适应不同屏幕 */
+    top: 50%;   /* 垂直居中 */
+    transform: translateY(-50%); /* 精确垂直居中 */
+    line-height: 1.2;
+    font-family: 'Segoe UI', Tahoma, sans-serif;  /* 现代字体 */
+    font-size: 48px;            /* 增大字号 */
+    font-weight: 600;
+    color: hsl(0, 0%, 100%);             /* 金色文字 */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5), 
+                -1px -1px 0 rgba(255, 255, 255, 0.1); /* 3D效果阴影 */
+    transition: all 0.3s ease;  /* 添加过渡动画 */
+}
+
+h1:hover {
+    transform: translateY(-50%) scale(1.05); /* 悬停放大效果 */
+    text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+}
+header{
+    background-color:#231C1A;
+    height:80px;
+    width:100%;
+    position:relative;
+}
+h5{
+    color:white;
+}
+
+header a{
+    color:white;
+    text-decoration:none;
+}
+header a:hover{
+    color:red;
+    text-decoration:underline;
+}
+header ul{
+    position:absolute;
+    top: 30px;
+    right:5vw;
+    line-hight:80px;
+}
+h5{
+    position:absolute;
+    left: 15%;
+    top: 25%;
+    transform: translateY(-50%);
+    margin: 0;
+    font: 100 60px/1.4 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    color: rgba(215, 255, 14, 0.9);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3),
+                 0 0 8px #224ef066;
+    letter-spacing: 0.05em;
+    transition: 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+h5:hover {
+    color: #fff;
+    text-shadow: 0 4px 6px rgba(0,0,0,0.5),
+                 0 0 12px #4589f899;
+    transform: translateY(-50%) scale(1.02);
+}
+header li{
+    display:inline;
+    margin-right:4vw;
+}
+.new2{
+    background-color: antiquewhite;
+    color: white;
+    height: 95vh;
+    background-image:url(img/001.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background
+}
+.new2 h2{
+    text-align:center;
+    font-size: 60px;
+    padding-top: -5000px;
+    position:absolute;
+    top: 250px;
+    
+}
+.lside{
+    width: 600px;
+    float: left;
+}
+.rside{
+    width: 750px;
+    float: right;
+}
+.lside.rside{
+    padding: 5px;;
+}
+.background_01{
+    background-image:url(img/plxabay7农业.jpg);
+    background-size: cover;
+    background-position: 50% 50%;
+    height: 200vh;
+    font: 900 39rem '';
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+}
+.background_01::before{
+    content: '';
+    background-size: cover;
+    background-image: inherit;
+    background-position: 50% 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: -99;
+}
+.nongye h3{
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    letter-spacing: 10px;
+    color: #FFF;
+    font-size: 70px;
+}
+.nongye h4{
+    position: absolute;
+    letter-spacing: 2px;
+    top: 200vh;
+    width: 75%;
+    color: #FFF;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 30px;
+    background-color: rgba(0,0,0,.3);
+    font-size: 40px; 
+ 
+}
+.background_01 span {
+    font-size: 500px; 
+}
+
+
+.background_01a{
+    background-image:url(img/NASA星空.webp);
+    background-size: cover;
+    background-position: 50% 50%;
+    height: 200vh;
+    font: 900 39rem '';
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+}
+.background_01a::before{
+    content: '';
+    background-size: cover;
+    background-image: inherit;
+    background-position: 50% 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: -99;
+}
+.tianwen h3{
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    letter-spacing: 10px;
+    color: #FFF;
+    font-size: 70px;
+}
+.tianwen h4{
+    position: absolute;
+    letter-spacing: 2px;
+    top: 400vh;
+    width: 75%;
+    color: #FFF;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 30px;
+    background-color: rgba(0,0,0,.3);
+    font-size: 40px; 
+ 
+}
+.background_01a span {
+    font-size: 500px; 
+}
+
+
+
+
+
+
+
+
+.shuxue {
+    .background{
+        background-repeat: no-repeat;
+    }
+    * {
+        padding: 0;
+        margin: 0;
+        font-family: "Source Sans Pro", sans-serif;
+    }
+
+    html,
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-size: cover;
+        overflow: hidden;
+        transition: background-image .7s ease-in-out;
+    }
+
+    .shell {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        background: rgba(99, 99, 99, 0.8);
+    }
+
+    .button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 380px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: -80px;
+    }
+
+    .prev,
+    .next {
+        transition: transform 0.25s ease;
+        z-index: 99999;
+        bottom: 5px;
+    }
+
+    .prev i,
+    .next i {
+        font-size: 90px;
+        color: #fff;
+        cursor: pointer;
+        text-shadow: 0 0 10px #ffffff;
+    }
+
+    .shell_body {
+        width: 100%;
+        transform: scale(.8);
+        padding: 20px 0 150px 0;
+    }
+
+    .shell_slider {
+        position: relative;
+        transition: transform 1s ease-in-out;
+        background: transparent;
+    }
+
+    .item {
+        position: relative;
+        float: left;
+        margin: 0 20px;
+    }
+
+    .frame {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 1s ease-in-out;
+        transform-style: preserve-3d;
+    }
+
+    .frame:after {
+        content: "";
+        position: absolute;
+        bottom: -16%;
+        width: 100%;
+        height: 60px;
+        background: #ffffff1c;
+        box-shadow: 0px 0px 15px 5px #ffffff1c;
+        transform: rotateX(90deg) translate3d(0px, -20px, 0px);
+    }
+
+    .box {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 4px solid hsl(0, 14%, 78%);
+        perspective: 1000px;
+        transform-style: preserve-3d;
+    }
+
+    .box h1,
+    .box span {
+        color: #ffffff;
+        transform: translateZ(100px);
+    }
+
+    .box h1 {
+        text-shadow: 0 0 100px hwb(276 2% 30%);
+        font-size: 120px;
+    }
+
+    .box span {
+        position: absolute;
+        bottom: 40px;
+        padding: 0 25px;
+        text-shadow: 0 0 10px hsl(303, 95%, 36%);
+    }
+
+    .front,
+    .left,
+    .right {
+        box-shadow: 0 0 50px hsl(0, 91%, 5%);
+        background-size: cover;
+    }
+
+    .right,
+    .left {
+        top: 0;
+        width: 60px;
+        backface-visibility: hidden;
+    }
+
+    .left {
+        left: 0;
+        border-left-width: 5px;
+        transform: translate3d(1px, 0, -60px) rotateY(-90deg);
+        transform-origin: 0%;
+    }
+
+    .right {
+        right: 0;
+        border-right-width: 5px;
+        transform: translate3d(-1px, 0, -60px) rotateY(90deg);
+        transform-origin: 100%;
+    }
+    
+
+    /* 添加以下代码 */
+    .shuxue {
+        background-image: url('img/plxabay6算盘.jpg');
+        background-size: cover;
+        background-position: center;
+    }
+h6{
+   
+        text-align: center;
+        font-size: 150px;
+        color: rgb(0, 0, 0);
+        position:relative;
+        top: 100px;
+        
+}
+
+
+
+
+
+
+
+
+
+
+
