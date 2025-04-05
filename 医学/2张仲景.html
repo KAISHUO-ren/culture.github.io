@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>张仲景医学成就可视化系统</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #8b0000;
+            --secondary-color: #2f4f4f;
+            --accent-color: #d4b895;
+            --hover-color: #ffd700;
+        }
+
+        body {
+            font-family: 'KaiTi', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background: linear-gradient(45deg, #f0e68c, #fafad2);
+        }
+
+       .sidebar {
+            width: 28%;
+            background-color: rgba(255, 250, 240, 0.9);
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            border-right: 2px solid var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            animation: slideInLeft 1s ease;
+        }
+
+       .sidebar img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+       .sidebar img:hover {
+            transform: scale(1.05) rotate(5deg);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        }
+
+       .sidebar h2 {
+            color: var(--primary-color);
+            border-left: 4px solid var(--secondary-color);
+            padding-left: 12px;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease;
+        }
+
+       .main-content {
+            margin-left: 30%;
+            padding: 40px;
+            width: 70%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+       .viz-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid var(--accent-color);
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            animation: fadeInUp 1s ease;
+        }
+
+       .viz-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+       .viz-card h2 {
+            color: var(--primary-color);
+            border-left: 4px solid var(--secondary-color);
+            padding-left: 12px;
+            margin: 0 0 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+       .viz-card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        #network {
+            height: 100%;
+            width: 100%;
+        }
+
+       .tooltip {
+            position: fixed;
+            transform: translate(15px, -50%);
+            max-width: 300px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            background: rgba(255, 243, 224, 0.95);
+            border: 2px solid var(--primary-color);
+            border-radius: 4px;
+            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15);
+            padding: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+       .tooltip::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right: 8px solid rgba(255, 243, 224, 0.95);
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+       .tooltip hr {
+            margin: 12px 0;
+            border: 0;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+       .radar-note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+       .network-note,
+       .sankey-note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+       .video-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+       .video-container video {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+       .life-intro {
+            margin-bottom: 20px;
+        }
+
+       .floating-text {
+            position: absolute;
+            pointer-events: none;
+            color: var(--primary-color);
+            font-size: 16px;
+            opacity: 0;
+            animation: floatAndFade 10s linear infinite;
+        }
+
+        @keyframes floatAndFade {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(50vw, -50vh);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>张仲景</h2>
+        <img src="images/张仲景.jpg" alt="张仲景肖像">
+        <h2>重要事件简介 😃</h2>
+        <p>👨‍⚕️少年学医：张仲景自幼对医学充满兴趣，拜同郡张伯祖为师，勤奋好学，很快便掌握了老师的医术👍。</p>
+        <p>💀瘟疫爆发：东汉末年，瘟疫横行，百姓苦不堪言。张仲景家族也未能幸免，大量族人染病离世😢。</p>
+        <p>📚著书立说：痛心于家族的遭遇和百姓的疾苦，张仲景潜心研究医学，广泛收集医方，历经多年，终于写成《伤寒杂病论》这部传世巨著🎉。</p>
+        <p>👑医圣之名：《伤寒杂病论》确立了“辨证论治”原则，为中医临床的基本原则，张仲景也因此被后人尊称为“医圣”👏。</p>
+    </div>
+    <div class="main-content">
+        <div class="video-container">
+            <video controls>
+                <source src="images/张仲景.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="life-intro viz-card">
+            <h2>生平介绍</h2>
+            <p>张仲景（约公元150～154年—约公元215～219年），名机，字仲景，东汉南阳涅阳县（今河南省邓州市穰东镇张寨村）人。东汉末年著名医学家，被后人尊称为“医圣”。张仲景广泛收集医方，写出了传世巨著《伤寒杂病论》。它确立的“辨证论治”原则，是中医临床的基本原则，是中医的灵魂所在。</p>
+        </div>
+        <div class="viz-card">
+            <div id="radarChart" style="height: 250px;"></div>
+            <div class="radar-note">
+                <p><strong>理论创新</strong>：张仲景在医学理论上有诸多开创性的见解，为中医理论体系的发展奠定了基础。</p>
+                <p><strong>经方数量</strong>：他所著的《伤寒杂病论》中记载了大量经典方剂，这些方剂至今仍广泛应用于临床。</p>
+                <p><strong>病症记载</strong>：详细记录了多种病症的症状、诊断和治疗方法，为后世医家提供了宝贵的参考。</p>
+                <p><strong>临床影响</strong>：其医学思想和治疗方法对后世临床实践产生了深远的影响。</p>
+                <p><strong>体系完整</strong>：构建了较为完整的中医辨证论治体系，使中医临床治疗更加规范化。</p>
+            </div>
+        </div>
+        <div class="viz-card">
+            <h2>经方配伍网络</h2>
+            <p>此网络图展示了张仲景经典经方之间的配伍关系。节点代表不同的经方，连线表示经方之间存在配伍关联。通过该图可以直观地了解经方之间的相互联系，为临床用药提供参考。</p>
+            <div id="network"></div>
+            <div class="network-note">
+                <p><strong>节点颜色</strong>：不同颜色的节点代表不同类型的经方，如解表、和解、攻下、温里等。</p>
+                <p><strong>连线</strong>：表示经方之间的配伍关系，连线的存在说明两个经方在临床应用中可能会相互配合使用。</p>
+            </div>
+        </div>
+        <div class="viz-card">
+            <h2>六经传变路径</h2>
+            <p>桑基图展示了《伤寒论》中六经传变的路径。每个矩形代表一条经络，从一个经络到另一个经络的流向和流量通过连线的粗细表示。通过该图可以清晰地看到六经之间的传变规律。</p>
+            <div id="sankey" style="height: 350px;"></div>
+            <div class="sankey-note">
+                <p><strong>矩形</strong>：代表六经中的不同经络，如太阳经、阳明经等。</p>
+                <p><strong>连线</strong>：表示经络之间的传变路径，连线越粗表示传变的可能性或频率越高。</p>
+            </div>
+        </div>
+    </div>
+    <div class="tooltip" style="opacity: 0;"></div>
+    <div id="floating-text-container"></div>
+    <script>
+        //========== 雷达图：核心成就 ==========//
+        const radarOption = {
+            title: { text: '张仲景核心学术成就雷达图', left: 'center' },
+            tooltip: { trigger: 'item' },
+            radar: {
+                indicator: [
+                    { name: '理论创新', max: 100 },
+                    { name: '经方数量', max: 100 },
+                    { name: '病症记载', max: 100 },
+                    { name: '临床影响', max: 100 },
+                    { name: '体系完整', max: 100 }
+                ],
+                shape: 'circle',
+                splitArea: { show: false }
+            },
+            series: [{
+                type: 'radar',
+                data: [{
+                    value: [95, 100, 85, 98, 90],
+                    name: '学术成就',
+                    areaStyle: { color: 'rgba(139, 0, 0, 0.3)' }
+                }]
+            }]
+        };
+        const radarChart = echarts.init(document.getElementById('radarChart'));
+        radarChart.setOption(radarOption);
+
+        //========== 网络图：经方配伍 ==========//
+        const formulas = [
+            { id: "桂枝汤", type: "解表", links: ["麻黄汤", "芍药甘草汤"], size: 28 },
+            { id: "麻黄汤", type: "解表", links: ["大青龙汤"], size: 25 },
+            { id: "小柴胡汤", type: "和解", links: ["大柴胡汤", "四逆散"], size: 22 },
+            { id: "大承气汤", type: "攻下", links: ["小承气汤"], size: 20 },
+            { id: "四逆汤", type: "温里", links: ["理中汤"], size: 18 }
+        ];
+
+        const width = document.getElementById('network').offsetWidth;
+        const height = 350;
+
+        const svg = d3.select("#network")
+           .append("svg")
+           .attr("width", width)
+           .attr("height", height);
+
+        const simulation = d3.forceSimulation(formulas)
+           .force("link", d3.forceLink().id(d => d.id).distance(100))
+           .force("charge", d3.forceManyBody().strength(-50))
+           .force("center", d3.forceCenter(width / 2, height / 2));
+
+        const links = [];
+        formulas.forEach(source => {
+            source.links.forEach(target => {
+                links.push({ source: source.id, target });
+            });
+        });
+
+        // 绘制连线
+        const link = svg.append("g")
+           .selectAll("line")
+           .data(links)
+           .join("line")
+           .attr("stroke", "#999")
+           .attr("stroke-width", 1)
+           .attr("stroke-opacity", 0.6);
+
+        // 绘制节点
+        const node = svg.append("g")
+           .selectAll("circle")
+           .data(formulas)
+           .join("circle")
+           .attr("r", d => d.size)
+           .attr("fill", d => ({
+                "解表": "#8b0000",
+                "和解": "#556b2f",
+                "攻下": "#8b4513",
+                "温里": "#2f4f4f"
+            }[d.type]))
+           .call(d3.drag()
+               .on("start", dragstarted)
+               .on("drag", dragged)
+               .on("end", dragended));
+
+        // 节点标签
+        const labels = svg.append("g")
+           .selectAll("text")
+           .data(formulas)
+           .join("text")
+           .text(d => d.id)
+           .attr("font-size", 12)
+           .attr("dx", 15);
+
+        simulation.on("tick", () => {
+            link.attr("x1", d => d.source.x)
+               .attr("y1", d => d.source.y)
+               .attr("x2", d => d.target.x)
+               .attr("y2", d => d.target.y);
+
+            node.attr("cx", d => d.x)
+               .attr("cy", d => d.y);
+
+            labels.attr("x", d => d.x)
+               .attr("y", d => d.y);
+        });
+
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+
+        // 交互提示
+        node.on("mouseover", function (event, d) {
+            const tooltip = d3.select(".tooltip");
+            const [x, y] = [event.clientX, event.clientY];
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+
+            let posX = x + 20;
+            let posY = y;
+
+            if (posX + 300 > winWidth) {
+                posX = x - 300 - 30;
+                tooltip.style("transform", "translate(-15px, -50%)")
+                   .style("right", winWidth - x + 15 + "px")
+                   .style("left", null);
+            } else {
+                tooltip.style("transform", "translate(15px, -50%)")
+                   .style("left", posX + "px")
+                   .style("right", null);
+            }
+
+            if (posY + 150 > winHeight) posY = winHeight - 150;
+
+            tooltip.style("opacity", 1)
+               .style("top", posY + "px")
+               .html(`<strong style="color:${d3.select(this).attr("fill")};font-size:16px;">${d.id}</strong>
+                      <hr>
+                      <div style="color:#666;">
+                        <em style="display:block;margin-bottom:6px;">类型：${d.type}</em>
+                      </div>`);
+
+            d3.select(this).transition().attr("r", d.size * 1.2).attr("stroke-width", 3);
+            link.style("opacity", l => (l.source.id === d.id || l.target === d.id) ? 1 : 0.2);
+            node.style("opacity", n => (n.id === d.id || formulas.some(f => f.id === d.id && f.links.includes(n.id))) ? 1 : 0.2);
+            labels.style("opacity", n => (n.id === d.id || formulas.some(f => f.id === d.id && f.links.includes(n.id))) ? 1 : 0.2);
+        }).on("mouseout", function () {
+            d3.select(this).transition().attr("r", d => d.size).attr("stroke-width", 1.5);
+            link.style("opacity", 0.6);
+            node.style("opacity", 1);
+            labels.style("opacity", 1);
+            d3.select(".tooltip").style("opacity", 0);
+        });
+
+        //========== 桑基图：六经传变 ==========//
+        const sankeyOption = {
+            title: { text: '六经传变路径桑基图', left: 'center' },
+            tooltip: { trigger: 'item' },
+            series: [{
+                type: 'sankey',
+                layout: 'none',
+                data: [
+                    { name: '太阳经', itemStyle: { color: '#c23531' } },
+                    { name: '阳明经', itemStyle: { color: '#2f4554' } },
+                    { name: '少阳经', itemStyle: { color: '#61a0a8' } },
+                    { name: '太阴经', itemStyle: { color: '#d48265' } },
+                    { name: '少阴经', itemStyle: { color: '#91c7ae' } },
+                    { name: '厥阴经', itemStyle: { color: '#749f83' } }
+                ],
+                links: [
+                    { source: '太阳经', target: '阳明经', value: 12 },
+                    { source: '阳明经', target: '少阳经', value: 8 },
+                    { source: '少阳经', target: '太阴经', value: 6 },
+                    { source: '太阴经', target: '少阴经', value: 4 },
+                    { source: '少阴经', target: '厥阴经', value: 3 },
+                    { source: '阳明经', target: '厥阴经', value: 2 }
+                ],
+                lineStyle: {
+                    color: 'gradient',
+                    curveness: 0.3
+                },
+                label: { color: '#333' }
+            }]
+        };
+        const sankeyChart = echarts.init(document.getElementById('sankey'));
+        sankeyChart.setOption(sankeyOption);
+
+        //========== 响应式调整 ==========//
+        window.onresize = () => {
+            radarChart.resize();
+            sankeyChart.resize();
+            svg.attr("width", document.getElementById('network').offsetWidth);
+            simulation.force("center", d3.forceCenter(
+                document.getElementById('network').offsetWidth / 2,
+                height / 2
+            )).restart();
+        };
+
+        //========== 可动悬浮文字 ==========//
+        const floatingTextContainer = document.getElementById('floating-text-container');
+        const floatingTexts = [
+            "张仲景，东汉医圣，其《伤寒杂病论》奠定中医临床基础，辨证论治影响深远。",
+            "经方配伍精妙，为后世临床用药提供宝贵借鉴。",
+            "六经传变理论揭示疾病发展规律，助于精准诊疗。",
+            "理论创新、经方众多、病症详载，成就中医辉煌篇章。"
+        ];
+
+        function createFloatingText() {
+            const text = document.createElement('div');
+            text.classList.add('floating-text');
+            text.textContent = floatingTexts[Math.floor(Math.random() * floatingTexts.length)];
+            text.style.left = Math.random() * window.innerWidth + 'px';
+            text.style.top = Math.random() * window.innerHeight + 'px';
+            floatingTextContainer.appendChild(text);
+            setTimeout(() => {
+                text.remove();
+            }, 10000);
+        }
+
+        setInterval(createFloatingText, 3000);
+    </script>
+</body>
+
+</html>    

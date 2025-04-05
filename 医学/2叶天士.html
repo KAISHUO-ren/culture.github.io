@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>叶天士医学成就可视化展示</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+       .left-panel {
+            width: 28%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+       .left-panel img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+       .left-panel img:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+       .right-panel {
+            margin-left: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-left: 40px;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        /* 新增人物生平轴样式 */
+       .person-timeline {
+            position: relative;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+       .person-timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: #333;
+        }
+
+       .person-timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 20px;
+        }
+
+       .person-timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #ff6347;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            animation: pulse 2s infinite;
+        }
+
+       .person-timeline-item:hover::before {
+            background-color: #ff4500;
+            animation: none;
+            transform: scale(1.3);
+        }
+
+       .person-timeline-content {
+            transition: all 0.3s ease;
+            transform-origin: left center;
+            opacity: 0.95;
+        }
+
+       .person-timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            opacity: 1;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* 新增视频样式 */
+       .person-video-container {
+            position: relative;
+            width: 100%;
+            height: auto;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+       .person-video-container video {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* 原有样式 */
+       .timeline-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+       .timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            padding: 20px 0;
+        }
+
+       .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: #ccc;
+            z-index: 1;
+        }
+
+       .timeline-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 2;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+       .timeline-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+       .description {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+       .description.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        #flowchart {
+            width: 100%;
+            height: 290px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            position: relative;
+        }
+
+       .left-panel ul li {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+       .left-panel ul li:hover {
+            background-color: rgba(255, 99, 71, 0.1);
+            transform: translateX(5px);
+        }
+
+        /* 新增动态文字样式 */
+       .dynamic-text-container {
+            position: relative;
+            height: 200px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+       .dynamic-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+            white-space: pre-line;
+            animation: float 3s ease-in-out infinite;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(-50%, -50%) translateY(0);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) translateY(-20px);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) translateY(0);
+            }
+        }
+
+        /* 新增视频作为文字背景的样式 */
+       .seasons-video-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+       .seasons-video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+       .seasons-video-container .dynamic-text {
+            z-index: 2;
+        }
+
+        /* 新增美观有趣的文字展示样式 */
+       .info-container {
+            margin-top: 20px;
+            position: relative;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+       .info-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+       .info-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+            text-align: justify;
+        }
+
+       .info-content p {
+            margin-bottom: 10px;
+        }
+
+       .info-content .highlight {
+            color: #ff6347;
+            font-weight: bold;
+        }
+
+       .info-content .section {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ddd;
+        }
+
+       .info-content .section:last-child {
+            border-bottom: none;
+        }
+
+       .info-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            color: #ff6347;
+        }
+
+        /* 新增流程图说明样式 */
+       .flowchart-explanation {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+       .flowchart-explanation h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+       .flowchart-explanation p {
+            line-height: 1.6;
+        }
+
+       .flowchart-explanation .highlight {
+            color: #ff6347;
+            font-weight: bold;
+        }
+
+        /* 新增文言文样式 */
+       .classical-text {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+       .classical-text p {
+            margin: 10px 0;
+        }
+
+       .classical-text .highlight {
+            color: #ff6347;
+            font-weight: bold;
+        }
+
+       .classical-text-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #ff6347;
+        }
+
+       .tooltip {
+            position: absolute;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="left-panel">
+        <div class="person-video-container">
+            <video id="person-video" width="100%" height="auto" controls>
+                <source src="images/叶天士.mp4" type="video/mp4">
+            </video>
+        </div>
+        <img src="images/叶天士.jpg" style="width: 500px;height: 600px;object-fit:cover;border-radius:8px;">
+        <h2>叶天士 - 温病学派代表人物</h2>
+        <ul>
+            <li>📜 医学著作：著有《温热论》，为温病学理论奠基</li>
+            <li>🌡️ 温病诊治：总结出卫气营血辨证方法，指导温病治疗</li>
+            <li>🧑‍⚕️ 临床经验：积累丰富临床经验，疗效显著，声名远扬</li>
+            <li>👨‍🏫 医学传承：培养众多弟子，推动温病学发展</li>
+        </ul>
+    </div>
+
+    <div class="right-panel">
+        <!-- 新增人物生平轴 -->
+        <div class="person-timeline">
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>公元1666年</h3>
+                    <p>叶天士出生于江苏吴县（今苏州）一个医学世家</p>
+                </div>
+            </div>
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>少年时期</h3>
+                    <p>随父学医，勤奋刻苦，展现出极高医学天赋</p>
+                </div>
+            </div>
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>青年时期</h3>
+                    <p>四处拜师学艺，博采众长，医术日益精湛</p>
+                </div>
+            </div>
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>中年时期</h3>
+                    <p>总结临床经验，创立卫气营血辨证理论，著成《温热论》</p>
+                </div>
+            </div>
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>公元1745年</h3>
+                    <p>叶天士逝世，但其医学思想和著作对后世影响深远</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-container">
+            <!-- 新增视频作为文字背景 -->
+            <div class="seasons-video-container">
+                <video id="seasons-video" loop muted>
+                    <source src="images/叶天士.mp4" type="video/mp4">
+                </video>
+                <div class="dynamic-text">
+                    温病诊治，独树一帜。
+                    卫气营血，辨证精髓。
+                    医术仁心，泽被后世。
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-line"></div>
+                <div class="timeline-item" data-index="0">卫气营血辨证</div>
+                <div class="timeline-item" data-index="1">温病治疗原则</div>
+                <div class="timeline-item" data-index="2">临床验案</div>
+                <div class="timeline-item" data-index="3">学术传承</div>
+            </div>
+
+            <div class="description" data-index="0">
+                <h3>卫气营血辨证</h3>
+                <p><strong>内容：</strong>将温病发展过程分为卫分、气分、营分、血分四个阶段，为温病诊断和治疗提供依据</p>
+                <p><strong>意义：</strong>丰富和发展中医热病学理论，对后世温病学发展产生深远影响</p>
+            </div>
+            <div class="description" data-index="1">
+                <h3>温病治疗原则</h3>
+                <p><strong>内容：</strong>根据卫气营血不同阶段，确立相应治疗方法，如“在卫汗之可也，到气才可清气，入营犹可透热转气，入血就恐耗血动血，直须凉血散血”</p>
+                <p><strong>意义：</strong>指导临床实践，提高温病治疗效果</p>
+            </div>
+            <div class="description" data-index="2">
+                <h3>临床验案</h3>
+                <p><strong>数量：</strong>众多</p>
+                <p><strong>意义：</strong>体现叶天士精湛医术和灵活辨证论治方法，为后世医家提供宝贵借鉴</p>
+            </div>
+            <div class="description" data-index="3">
+                <h3>学术传承</h3>
+                <p><strong>方式：</strong>培养众多弟子，如薛雪、吴鞠通等，传承和发扬其医学思想</p>
+                <p><strong>意义：</strong>推动温病学派发展，使其成为中医重要学术流派</p>
+            </div>
+        </div>
+
+        <div class="timeline-container">
+            <div id="chart-container" style="width: 100%; height: 300px;"></div>
+            <div class="classical-text">
+                <div class="classical-text-icon">📖</div>
+                <p>“温邪上受，首先犯肺，逆传心包。”</p>
+                <p>“救阴不在血，而在津与汗；通阳不在温，而在利小便。”</p>
+                <p>“务在先安未受邪之地。”</p>
+            </div>
+        </div>
+
+        <div class="timeline-container">
+            <h2 style="text-align: center;">药物与治疗领域关系</h2>
+            <div id="network-container" style="width: 100%; height: 400px;"></div>
+
+            <div class="info-container">
+                <div class="info-title">药物应用详细说明</div>
+                <div class="info-content">
+                    <div class="section">
+                        <span class="info-icon">🌿</span>
+                        <p>薄荷在叶天士医案中有广泛应用，如 <span class="highlight">“薄荷辛凉，可散风热，清头目”</span> 用于治疗温病初起。这种方法体现了其用药轻灵之特点。</p>
+                    </div>
+                    <div class="section">
+                        <span class="info-icon">💊</span>
+                        <p>犀角具有 <span class="highlight">清热凉血</span> 等作用，在治疗营血分证时常用，反映了其对药物功效的精准把握。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" style="opacity: 0;"></div>
+
+    <script>
+        // 视频播放功能
+        document.addEventListener('DOMContentLoaded', function () {
+            const video = document.getElementById('person-video');
+            const videoContainer = document.querySelector('.person-video-container');
+
+            // 为视频容器添加点击播放功能
+            videoContainer.addEventListener('click', function () {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.currentTime = 0; // 正在播放时点击重置进度
+                }
+            });
+
+            // 自动播放失败时保持容器可点击状态
+            video.play().catch(e => {
+                console.log('自动播放被阻止，点击视频画面开始播放');
+                videoContainer.style.cursor = 'pointer'; // 显示可点击状态
+            });
+
+            // 春夏秋冬视频播放功能
+            const seasonsVideo = document.getElementById('seasons-video');
+            // 自动播放并循环
+            seasonsVideo.play().catch(e => {
+                console.log('自动播放被阻止，视频将静音播放');
+                seasonsVideo.muted = true;
+                seasonsVideo.play();
+            });
+        });
+
+        // 时间轴交互
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        const descriptions = document.querySelectorAll('.description');
+
+        timelineItems.forEach(item => {
+            item.addEventListener('click', () => {
+                timelineItems.forEach(i => i.classList.remove('active'));
+                descriptions.forEach(desc => desc.classList.remove('active'));
+                item.classList.add('active');
+                const index = item.getAttribute('data-index');
+                descriptions[index].classList.add('active');
+            });
+        });
+
+        // 方剂分类数据
+        const categories = [
+            { name: '卫气营血辨证', value: 40, color: '#8c564b' },
+            { name: '温病治疗原则', value: 30, color: '#e377c2' },
+            { name: '临床验案', value: 20, color: '#bcbd22' },
+            { name: '学术传承', value: 10, color: '#17becf' }
+        ];
+
+        // 初始化环形图
+        const chart = echarts.init(document.getElementById('chart-container'));
+        chart.setOption({
+            tooltip: { trigger: 'item' },
+            series: [{
+                type: 'pie',
+                radius: ['45%', '70%'],
+                label: { show: false },
+                data: categories,
+                itemStyle: {
+                    borderRadius: 5,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }
+            }]
+        });
+
+        // ========== 网络图数据 ==========
+        const nodes = [
+            { id: "薄荷", type: "药物", size: 28, color: "#2ca02c" },
+            { id: "犀角", type: "药物", size: 28, color: "#2ca02c" },
+
+            // 治疗领域
+            { id: "温病初起", type: "治疗领域", size: 20, color: "#d62728" },
+            { id: "营血分证", type: "治疗领域", size: 20, color: "#d62728" },
+            { id: "风热犯肺", type: "治疗领域", size: 20, color: "#d62728" },
+            { id: "热入心包", type: "治疗领域", size: 20, color: "#d62728" },
+
+            // 薄荷应用
+            { id: "辛凉解表", type: "用法创新", size: 18, color: "#ff7f0e" },
+            { id: "轻清宣透", type: "用法创新", size: 18, color: "#ff7f0e" },
+
+            // 犀角应用
+            { id: "清热凉血", type: "制药技术", size: 18, color: "#9467bd" },
+            { id: "解毒安神", type: "制药技术", size: 18, color: "#9467bd" }
+        ];
+
+        const links = [
+            { source: "薄荷", target: "犀角", type: "药物配伍" },
+            { source: "薄荷", target: "温病初起" },
+            { source: "犀角", target: "清热凉血" },
+            { source: "犀角", target: "营血分证" },
+            { source: "薄荷", target: "辛凉解表" },
+            { source: "薄荷", target: "轻清宣透" },
+            { source: "犀角", target: "解毒安神" },
+            { source: "温病初起", target: "风热犯肺" },
+            { source: "营血分证", target: "热入心包" }
+        ];
+        // ========== 网络图可视化 ==========
+        const width = 1200, height = 600;
+        const svg = d3.select("#network-container")
+           .append("svg")
+           .attr("width", "100%")
+           .attr("height", height)
+           .attr("viewBox", [0, 0, width, height]);
+
+        const simulation = d3.forceSimulation(nodes)
+           .force("link", d3.forceLink(links).id(d => d.id).distance(d => d.type === "药物配伍" ? 200 : 100))
+           .force("charge", d3.forceManyBody().strength(d => d.type === "药物" ? -800 : -300))
+           .force("collide", d3.forceCollide().radius(d => d.size + 15).strength(0.8))
+           .force("center", d3.forceCenter(width / 2, height / 2))
+           .force("x", d3.forceX().strength(0.05))
+           .force("y", d3.forceY().strength(0.05));
+
+        // 绘制连线
+        const link = svg.append("g")
+           .selectAll("line")
+           .data(links)
+           .join("line")
+           .attr("stroke", d => d.type === "药物配伍" ? "#2c7bb6" : "#999")
+           .attr("stroke-width", d => d.type === "药物配伍" ? 3 : 1)
+           .attr("stroke-opacity", 0.6);
+
+        // 绘制节点
+        const node = svg.append("g")
+           .selectAll("circle")
+           .data(nodes)
+           .join("circle")
+           .attr("r", d => d.size)
+           .attr("fill", d => d.color)
+           .attr("stroke", "#fff")
+           .attr("stroke-width", 1.5)
+           .call(drag(simulation));
+
+        // 节点标签
+        const label = svg.append("g")
+           .selectAll("text")
+           .data(nodes)
+           .join("text")
+           .text(d => d.id)
+           .attr("font-size", d => d.type === "药物" ? 14 : 12)
+           .attr("dx", 15)
+           .attr("dy", 4)
+           .style("user-select", "none");
+
+        // 更新位置
+        simulation.on("tick", () => {
+            link.attr("x1", d => d.source.x)
+               .attr("y1", d => d.source.y)
+               .attr("x2", d => d.target.x)
+               .attr("y2", d => d.target.y);
+            node.attr("cx", d => d.x)
+               .attr("cy", d => d.y);
+            label.attr("x", d => d.x)
+               .attr("y", d => d.y);
+        });
+
+        // 拖拽功能
+        function drag(simulation) {
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
+            }
+
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
+
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+
+            return d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended);
+        }
+
+        // 交互提示
+        node.on("mouseover", function (event, d) {
+            d3.select(this).transition().duration(100).attr("r", d.size * 1.2);
+            d3.select(".tooltip")
+               .style("opacity", 1)
+               .html(`${d.id}<br>类型：${d.type}`)
+               .style("left", `${event.pageX + 15}px`)
+               .style("top", `${event.pageY - 28}px`);
+        }).on("mouseout", function (event, d) {
+            d3.select(this).transition().duration(100).attr("r", d.size);
+            d3.select(".tooltip").style("opacity", 0);
+        });
+
+        // 初始化布局
+        setTimeout(() => {
+            simulation.alpha(0.1).restart();
+            svg.transition().duration(1000).attr("viewBox", [-100, -100, width + 200, height + 200]);
+        }, 500);
+
+        // 响应式调整
+        window.onresize = () => {
+            chart.resize();
+            svg.attr("width", document.getElementById("network-container").offsetWidth);
+        };
+    </script>
+</body>
+</html>
+    

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>本草纲目可视化 - 李时珍医学成就展示</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --main-color: #4CAF50;
+            --secondary-color: #8BC34A;
+        }
+
+        body {
+            font-family: "宋体", SimSun, serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            background-color: #f8faf7;
+        }
+
+        .left-panel {
+            width: 28%;
+            background-color: #f1f8e9;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .left-panel img {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 2px solid var(--main-color);
+        }
+
+        .left-panel img:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.2);
+        }
+
+        .right-panel {
+            margin-left: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-left: 40px;
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .person-timeline {
+            position: relative;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        .person-timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--main-color);
+        }
+
+        .person-timeline-item::before {
+            background-color: var(--main-color);
+        }
+
+        .timeline-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .timeline-item {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid var(--main-color);
+        }
+
+        #flowchart {
+            background: #f1f8e9;
+        }
+
+        .classical-text {
+            background-color: #e8f5e9;
+            font-family: "楷体", KaiTi, cursive;
+        }
+
+        .info-container {
+            background-color: #f1f8e9;
+            border: 1px dashed var(--main-color);
+        }
+
+        .dynamic-text {
+            background-color: rgba(255, 255, 255, 0.9);
+            font-family: "楷体", KaiTi, cursive;
+            color: #1b5e20;
+        }
+
+        .tooltip {
+            border: 1px solid var(--main-color);
+            background: rgba(241, 248, 233, 0.95);
+        }
+
+        /* 保持原有其他样式不变 */
+        /* ...原有通用样式保持不变... */
+    </style>
+</head>
+
+<body>
+    <div class="left-panel">
+        <div class="person-video-container">
+            <video id="person-video" width="100%" height="auto" controls>
+                <source src="img/李时珍.mp4" type="video/mp4">
+            </video>
+        </div>
+        <img src="img/本草.jpg" style="width:500px;height:400px;object-fit:cover;">
+        <h2>李时珍 - 《本草纲目》作者</h2>
+        <ul>
+            <li>📜 医学巨著：历时27年编撰，收载药物1892种</li>
+            <li>🌿 科学分类：首创"从贱到贵"自然分类法</li>
+            <li>🔬 实证研究：行程万里实地考证药物</li>
+            <li>🌍 世界影响：被译成日、英、法、德等多国文字</li>
+            <li>🖋️ 图文并茂：附有1100余幅精美药物插图</li>
+        </ul>
+    </div>
+
+    <div class="right-panel">
+        <!-- 生平时间轴 -->
+        <div class="person-timeline">
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>1518年（明正德十三年）</h3>
+                    <p>生于湖北蕲州（今湖北省蕲春县）世医家庭</p>
+                </div>
+            </div>
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>1552年（明嘉靖三十一年）</h3>
+                    <p>开始着手编写《本草纲目》，时年34岁</p>
+                </div>
+            </div>
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>1578年（明万历六年）</h3>
+                    <p>完成《本草纲目》三易其稿，历时27年</p>
+                </div>
+            </div>
+            <div class="person-timeline-item">
+                <div class="person-timeline-content">
+                    <h3>1593年（明万历二十一年）</h3>
+                    <p>逝世于湖北蕲州，临终前仍在修订著作</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主可视化区域 -->
+        <div class="timeline-container">
+            <div class="seasons-video-container">
+                <video id="seasons-video" loop muted>
+                    <source src="img/本草.mp4" type="video/mp4">
+                </video>
+                <div class="dynamic-text">
+                    性理之精微，格物之通典
+                    帝王之秘箓，臣民之重宝
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-line"></div>
+                <div class="timeline-item" data-index="0">植物部</div>
+                <div class="timeline-item" data-index="1">动物部</div>
+                <div class="timeline-item" data-index="2">矿物部</div>
+                <div class="timeline-item" data-index="3">水火部</div>
+            </div>
+
+            <div class="description" data-index="0">
+                <h3>植物部</h3>
+                <p>📚 分类：草部、谷部、菜部、果部、木部</p>
+                <p>🌱 代表药材：人参、当归、甘草、黄连</p>
+            </div>
+            <div class="description" data-index="1">
+                <h3>动物部</h3>
+                <p>📚 分类：虫部、鳞部、介部、禽部、兽部</p>
+                <p>🐅 代表药材：虎骨、麝香、鹿茸、牛黄</p>
+            </div>
+            <div class="description" data-index="2">
+                <h3>矿物部</h3>
+                <p>📚 分类：金部、玉部、石部、卤石部</p>
+                <p>⛰️ 代表药材：朱砂、雄黄、石膏、芒硝</p>
+            </div>
+            <div class="description" data-index="3">
+                <h3>水火部</h3>
+                <p>📚 分类：水部、火部</p>
+                <p>🔥 特殊记载：不同水源的医疗用途</p>
+            </div>
+        </div>
+
+        <!-- 数据图表 -->
+        <div class="timeline-container">
+            <div id="chart-container" style="width: 100%; height: 300px;"></div>
+            <div class="classical-text">
+                <div class="classical-text-icon">📜</div>
+                <p>"医者贵在格物，药性必本诸实验"</p>
+                <p>"剪繁去复，绳谬补遗"</p>
+            </div>
+        </div>
+
+        <!-- 药物关系网络 -->
+        <div class="timeline-container">
+            <h2 style="text-align: center;">药物分类知识图谱</h2>
+            <div id="network-container" style="width: 100%; height: 400px;"></div>
+
+            <div class="info-container">
+                <div class="info-title">分类体系说明</div>
+                <div class="info-content">
+                    <div class="section">
+                        <span class="info-icon">🗂️</span>
+                        <p>三级分类体系：<br>
+                            <span class="highlight">16部 → 60类 → 1892种</span>
+                        </p>
+                    </div>
+                    <div class="section">
+                        <span class="info-icon">🌐</span>
+                        <p>创新分类原则：<br>
+                            <span class="highlight">"从微至巨"（无机到有机）<br>
+                            "从贱至贵"（日常到珍贵）</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" style="opacity: 0;"></div>
+
+    <script>
+        // 数据配置
+        const categories = [
+            { name: '植物药', value: 1094, color: '#4CAF50' },
+            { name: '动物药', value: 444, color: '#8BC34A' },
+            { name: '矿物药', value: 275, color: '#CDDC39' },
+            { name: '其他', value: 79, color: '#FFC107' }
+        ];
+
+        // 初始化饼图
+        const chart = echarts.init(document.getElementById('chart-container'));
+        chart.setOption({
+            tooltip: { trigger: 'item' },
+            series: [{
+                type: 'pie',
+                radius: ['40%', '70%'],
+                label: { show: false },
+                data: categories,
+                itemStyle: {
+                    borderRadius: 8,
+                    borderColor: '#fff',
+                    borderWidth: 3
+                }
+            }]
+        });
+
+        // 知识图谱数据
+        const nodes = [
+            { id: "本草纲目", size: 40, color: "#1B5E20" },
+            { id: "植物部", type: "分类", size: 35, color: "#4CAF50" },
+            { id: "动物部", type: "分类", size: 35, color: "#8BC34A" },
+            { id: "矿物部", type: "分类", size: 35, color: "#CDDC39" },
+            { id: "人参", type: "药材", size: 28, color: "#C8E6C9" },
+            { id: "当归", type: "药材", size: 26, color: "#C8E6C9" },
+            { id: "虎骨", type: "药材", size: 26, color: "#DCEDC8" },
+            { id: "朱砂", type: "药材", size: 26, color: "#F0F4C3" }
+        ];
+
+        const links = [
+            { source: "本草纲目", target: "植物部" },
+            { source: "本草纲目", target: "动物部" },
+            { source: "本草纲目", target: "矿物部" },
+            { source: "植物部", target: "人参" },
+            { source: "植物部", target: "当归" },
+            { source: "动物部", target: "虎骨" },
+            { source: "矿物部", target: "朱砂" }
+        ];
+
+        // 知识图谱可视化
+        const width = 1200, height = 500;
+        const svg = d3.select("#network-container")
+            .append("svg")
+            .attr("width", "100%")
+            .attr("height", height)
+            .attr("viewBox", [0, 0, width, height]);
+
+        const simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(links).id(d => d.id).distance(150))
+            .force("charge", d3.forceManyBody().strength(-800))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        // 绘制连线
+        const link = svg.append("g")
+            .selectAll("line")
+            .data(links)
+            .join("line")
+            .attr("stroke", "#9E9E9E")
+            .attr("stroke-width", 2);
+
+        // 绘制节点
+        const node = svg.append("g")
+            .selectAll("circle")
+            .data(nodes)
+            .join("circle")
+            .attr("r", d => d.size)
+            .attr("fill", d => d.color)
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 2)
+            .call(drag(simulation));
+
+        // 节点标签
+        const label = svg.append("g")
+            .selectAll("text")
+            .data(nodes)
+            .join("text")
+            .text(d => d.id)
+            .attr("font-size", d => d.size / 1.5)
+            .attr("dx", 15)
+            .attr("dy", 4)
+            .style("font-family", "楷体");
+
+        // 更新位置
+        simulation.on("tick", () => {
+            link.attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+            node.attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+            label.attr("x", d => d.x)
+                .attr("y", d => d.y);
+        });
+
+        // 拖拽功能
+        function drag(simulation) {
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
+            }
+
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
+
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+
+            return d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended);
+        }
+
+        // 交互提示
+        node.on("mouseover", function (event, d) {
+            d3.select(this).transition().attr("r", d.size * 1.2);
+            d3.select(".tooltip")
+                .style("opacity", 1)
+                .html(`${d.id}<br>${d.type || "总纲"}`)
+                .style("left", `${event.pageX + 15}px`)
+                .style("top", `${event.pageY - 28}px`);
+        }).on("mouseout", function (event, d) {
+            d3.select(this).transition().attr("r", d.size);
+            d3.select(".tooltip").style("opacity", 0);
+        });
+
+        // 视频控制
+        document.querySelectorAll('video').forEach(video => {
+            video.addEventListener('click', () => video.paused ? video.play() : video.pause());
+            video.addEventListener('dblclick', () => video.requestFullscreen());
+        });
+
+        // 响应式调整
+        window.onresize = () => {
+            chart.resize();
+            svg.attr("width", document.getElementById("network-container").offsetWidth);
+        };
+    </script>
+</body>
+</html>

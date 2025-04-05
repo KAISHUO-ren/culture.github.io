@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>扁鹊 - 古代医学宗师</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+       .left-panel {
+            width: 28%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-sizing: border-box;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+       .left-panel img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+       .left-panel img:hover {
+            transform: scale(1.02);
+        }
+
+       .left-panel ul {
+            list-style: none;
+            padding: 0;
+        }
+
+       .left-panel li {
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+       .left-panel li:hover {
+            transform: translateX(5px);
+        }
+
+       .right-panel {
+            margin-left: 30%;
+            padding: 40px;
+            width: 70%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+       .chart-box {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #lifeTimeline {
+            height: 400px;
+        }
+
+        #network-container {
+            height: 600px;
+            position: relative;
+        }
+
+       .tooltip {
+            position: fixed;
+            transform: translate(15px, -50%);
+            max-width: 280px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+       .tooltip::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right: 8px solid rgba(255, 255, 255, 0.98);
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+       .tooltip hr {
+            margin: 12px 0;
+            border: 0;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+       .description {
+            line-height: 1.6;
+        }
+
+       .description h2 {
+            color: #2b5b84;
+            margin-top: 30px;
+        }
+
+       .description p {
+            margin-bottom: 15px;
+        }
+
+        /* 新增视频样式 */
+       .video-container {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+       .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 新增医药配方悬浮样式 */
+       .recipe-tooltip {
+            position: fixed;
+            max-width: 400px;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+       .recipe-tooltip::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right: 8px solid rgba(255, 255, 255, 0.98);
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+       .recipe-tooltip h3 {
+            color: #d62728;
+            margin-bottom: 10px;
+        }
+
+       .recipe-tooltip p {
+            margin-bottom: 8px;
+        }
+
+        /* 优化人物关系图历史记载样式 */
+       .history-tooltip {
+            position: fixed;
+            max-width: 500px;
+            z-index: 1002;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+       .history-tooltip::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right: 8px solid rgba(255, 255, 255, 0.98);
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+       .history-tooltip h3 {
+            color: #2b5b84;
+            margin-bottom: 10px;
+        }
+
+       .history-tooltip p {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="left-panel">
+        <img src="imagesa/扁鹊.jpg" alt="扁鹊肖像">
+        <h2>扁鹊 - 古代医学宗师</h2>
+        <ul>
+            <li>📚 四诊法：望、闻、问、切</li>
+            <li>⏳ 开创中医诊断学体系</li>
+            <li>📖 经典案例：虢太子复苏</li>
+            <li>🌿 "治未病"预防医学先驱</li>
+            <li>⚕️ 建立师徒传承制度</li>
+        </ul>
+    </div>
+
+    <div class="right-panel">
+        <!-- 新增人物生平视频 -->
+        <div class="video-container">
+            <video controls>
+                <source src="imagesa/扁鹊.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="chart-box" id="lifeTimeline"></div>
+        <div class="description">
+            <h2>扁鹊的生平事迹</h2>
+            <p>扁鹊约生活于公元前 407 - 310 年，出生于渤海郡鄚。他拜长桑君为师，学成后周游行医，足迹遍布多国。他救治虢国太子的事迹传为佳话，却遭太医令李醯嫉妒而被刺杀。</p>
+
+            <h2>医学贡献 - 四诊法</h2>
+            <p>扁鹊创立“四诊法”，即望、闻、问、切。望神色形态，闻声音气味，问症状病史，切脉象变化。该方法至今仍是中医诊断的重要手段。</p>
+
+            <h2>医学理念 - “治未病”</h2>
+            <p>扁鹊是“治未病”思想先驱，主张未病先防、既病防变、病后防复。强调通过调整生活方式预防疾病，重视早期诊断和病后调养。</p>
+
+            <h2>著作与传承 - 《难经》</h2>
+            <p>相传《难经》为扁鹊所著，以问答解疑难，讨论 81 个问题。它补充发展《黄帝内经》理论，为临床提供参考。扁鹊还培养众多弟子，建立师徒传承制度。</p>
+
+            <!-- 新增医药配方展示 -->
+            <h2>扁鹊的医药配方</h2>
+            <p>以下为扁鹊部分经典医药配方，鼠标悬浮可查看详细信息：</p>
+            <ul>
+                <li class="recipe-item" data-recipe="配方一：主治风寒感冒。药材：麻黄、桂枝、杏仁、甘草。用法：水煎服。">麻黄桂枝汤</li>
+                <li class="recipe-item" data-recipe="配方二：主治肠胃不适。药材：黄连、厚朴、陈皮、茯苓。用法：研末冲服。">黄连厚朴散</li>
+            </ul>
+        </div>
+
+        <div class="chart-box" id="network-container"></div>
+
+        <!-- 新增历史记载展示区域 -->
+        <div class="description">
+            <h2>人物关系图历史记载</h2>
+            <p>以下为人物关系图中各关系的历史记载依据，鼠标悬浮人物关系可查看详细内容：</p>
+            <ul>
+                <li class="history-item" data-history="《史记·扁鹊仓公列传》记载：‘扁鹊者，勃海郡郑人也，姓秦氏，名越人。少时为人舍长。舍客长桑君过，扁鹊独奇之，常谨遇之。长桑君亦知扁鹊非常人也。出入十余年，乃呼扁鹊私坐，间与语曰：“我有禁方，年老，欲传与公，公毋泄。”扁鹊曰：“敬诺。”乃出其怀中药予扁鹊：“饮是以上池之水，三十日当知物矣。”乃悉取其禁方书尽与扁鹊。忽然不见，殆非人也。扁鹊以其言饮药三十日，视见垣一方人。以此视病，尽见五藏症结，特以诊脉为名耳。’">扁鹊与长桑君的师承关系</li>
+                <li class="history-item" data-history="《史记·扁鹊仓公列传》载：‘扁鹊过虢。虢太子死，扁鹊至虢宫门下，问中庶子喜方者曰：“太子何病，国中治穰过于众事？”中庶子曰：“太子病血气不时，交错而不得泄，暴发于外，则为中害。精神不能止邪气，邪气畜积而不得泄，是以阳缓而阴急，故暴蹶而死。”扁鹊曰：“其死何如时？”曰：“鸡鸣至今。”曰：“收乎？”曰：“未也，其死未能半日也。”“言臣齐勃海秦越人也，家在于郑，未尝得望精光侍谒于前也。闻太子不幸而死，臣能生之。”中庶子曰：“先生得无诞之乎？何以言太子可生也！臣闻上古之时，医有俞跗，治病不以汤液醴洒，镵石挢引，案扤毒熨，一拨见病之应，因五藏之输，乃割皮解肌，诀脉结筋，搦髓脑，揲荒爪幕，湔浣肠胃，漱涤五藏，练精易形。先生之方能若是，则太子可生也；不能若是而欲生之，曾不可以告咳婴之儿。”终日，扁鹊仰天叹曰：“夫子之为方也，若以管窥天，以郄视文。越人之为方也，不待切脉、望色、听声、写形，言病之所在。闻病之阳，论得其阴；闻病之阴，论得其阳。病应见于大表，不出千里，决者至众，不可曲止也。子以吾言为不诚，试入诊太子，当闻其耳鸣而鼻张，循其两股以至于阴，当尚温也。”中庶子闻扁鹊言，目眩然而不瞚，舌挢然而不下，乃以扁鹊言入报虢君。虢君闻之大惊，出见扁鹊于中阙，曰：“窃闻高义之日久矣，然未尝得拜谒于前也。先生过小国，幸而举之，偏国寡臣幸甚。有先生则活，无先生则弃捐填沟壑，长终而不得反。”言未卒，因嘘唏服臆，魂精泄横，流涕长潸，忽忽承睫，悲不能自止，容貌变更。扁鹊曰：“若太子病，所谓‘尸厥’者也。夫以阳入阴中，动胃繵缘，中经维络，别下于三焦、膀胱，是以阳脉下遂，阴脉上争，会气闭而不通，阴上而阳内行，下内鼓而不起，上外绝而不为使，上有绝阳之络，下有破阴之纽，破阴绝阳，色废脉乱，故形静如死状。太子未死也。夫以阳入阴支兰藏者生，以阴入阳支兰藏者死。凡此数事，皆五藏蹷中之时暴作也。良工取之，拙者疑殆。’扁鹊乃使弟子子阳厉针砥石，以取外三阳五会。有间，太子苏。乃使子豹为五分之熨，以八减之齐和煮之，以更熨两胁下。太子起坐。更适阴阳，但服汤二旬而复故。故天下尽以扁鹊为能生死人。扁鹊曰：“越人非能生死人也，此自当生者，越人能使之起耳。”’">扁鹊救治虢国太子的事迹</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="tooltip" style="opacity: 0;"></div>
+    <div class="recipe-tooltip" style="opacity: 0;"></div>
+    <div class="history-tooltip" style="opacity: 0;"></div>
+
+    <script>
+        // 生平时间轴数据
+        const lifeData = [
+            { year: "前 407 年", event: "出生", value: 10 },
+            { year: "前 380 年", event: "拜师长桑君", value: 30 },
+            { year: "前 360 年", event: "周游行医", value: 50 },
+            { year: "前 350 年", event: "虢太子复苏案例", value: 70 },
+            { year: "前 340 年", event: "见蔡桓公", value: 90 },
+            { year: "前 310 年", event: "逝世", value: 100 }
+        ];
+
+        // 初始化生平时间轴
+        const lifeChart = echarts.init(document.getElementById('lifeTimeline'));
+        lifeChart.setOption({
+            title: { text: '生平时间轴', left: 'center' },
+            tooltip: {
+                trigger: 'item',
+                formatter: (params) => {
+                    const data = lifeData.find(d => d.year === params.name);
+                    return `${params.name}<br>${data.event}`;
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data: lifeData.map(d => d.year),
+                axisLabel: {
+                    rotate: 45,
+                    formatter: function (value, index) {
+                        return `${value}\n${lifeData[index].event}`;
+                    }
+                }
+            },
+            yAxis:            {
+                name: '贡献值',
+                type: 'value',
+                nameLocation: 'middle',
+                nameGap: 30
+            },
+            series: [{
+                type: 'line',
+                data: lifeData.map(d => d.value),
+                smooth: true,
+                lineStyle: { color: '#2b5b84', width: 3 },
+                itemStyle: { color: '#2b5b84' },
+                symbolSize: 12
+            }]
+        });
+
+        // 知识图谱数据
+        const nodes = [
+            { id: "扁鹊", type: "核心医家", size: 50, color: "#2b5b84", desc: "春秋战国时期神医，中医诊断学奠基人" },
+            { id: "长桑君", type: "授业恩师", size: 35, color: "#c13a3a", desc: "神秘医者，传授扁鹊禁方书" },
+            { id: "子阳", type: "嫡传弟子", size: 30, color: "#7c4d2b", desc: "针灸大家，参与虢太子救治" },
+            { id: "子豹", type: "嫡传弟子", size: 30, color: "#7c4d2b", desc: "药石专家，创立外治学派" },
+            { id: "仓公", type: "后世传人", size: 28, color: "#d47f17", desc: "汉代名医，继承扁鹊脉法" },
+            { id: "虢国太子", type: "经典案例", size: 28, color: "#2ca02c", desc: "尸厥症患者，最早记载的休克复苏案例" },
+            { id: "蔡桓公", type: "警示案例", size: 28, color: "#2ca02c", desc: "讳疾忌医典型，载于《韩非子》" },
+            { id: "赵简子", type: "政治医疗", size: 28, color: "#2ca02c", desc: "五日昏迷诊断，影响晋国政坛" },
+            { id: "四诊法", type: "诊断体系", size: 40, color: "#9467bd", desc: "望闻问切系统化诊断方法" },
+            { id: "治未病", type: "医学理念", size: 38, color: "#9467bd", desc: "预防医学思想，见《黄帝内经》" },
+            { id: "难经", type: "医学典籍", size: 36, color: "#e377c2", desc: "81难医学理论，托名扁鹊著" },
+            { id: "黄帝内经", type: "后世影响", size: 34, color: "#17becf", desc: "吸收扁鹊学术思想" },
+            { id: "华佗", type: "后世影响", size: 32, color: "#17becf", desc: "外科鼻祖，继承发展外治法" },
+            { id: "孙思邈", type: "后世影响", size: 32, color: "#17becf", desc: "药王，推崇治未病理念" }
+        ];
+
+        const links = [
+            { source: "长桑君", target: "扁鹊", type: "师承", width: 3 },
+            { source: "扁鹊", target: "子阳", type: "师承", width: 3 },
+            { source: "扁鹊", target: "子豹", type: "师承", width: 3 },
+            { source: "子阳", target: "仓公", type: "师承", width: 2, dash: [5, 5] },
+            { source: "扁鹊", target: "虢国太子", type: "救治", color: "#2ca02c" },
+            { source: "扁鹊", target: "蔡桓公", type: "诊治", color: "#ff7f0e" },
+            { source: "扁鹊", target: "赵简子", type: "诊治", color: "#ff7f0e" },
+            { source: "扁鹊", target: "四诊法", type: "创立", color: "#d62728" },
+            { source: "扁鹊", target: "治未病", type: "提出", color: "#d62728" },
+            { source: "扁鹊", target: "难经", type: "关联", color: "#d62728", dash: [5, 5] },
+            { source: "四诊法", target: "黄帝内经", type: "影响", color: "#7f7f7f" },
+            { source: "治未病", target: "孙思邈", type: "影响", color: "#7f7f7f" },
+            { source: "子豹", target: "华佗", type: "影响", color: "#7f7f7f", dash: [5, 5] }
+        ];
+
+        // 知识图谱可视化
+        const width = 1200, height = 600;
+        const padding = 20;
+        const validArea = {
+            xMin: padding,
+            xMax: width - padding,
+            yMin: padding,
+            yMax: height - padding
+        };
+
+        const svg = d3.select("#network-container")
+           .append("svg")
+           .attr("width", "100%")
+           .attr("height", height)
+           .attr("viewBox", [0, 0, width, height]);
+
+        const simulation = d3.forceSimulation(nodes)
+           .force("link", d3.forceLink(links)
+              .id(d => d.id)
+              .distance(d => ({师承: 100, 救治: 150, 影响: 200}[d.type] || 120))
+           )
+           .force("charge", d3.forceManyBody().strength(-600))
+           .force("center", d3.forceCenter(width / 2, height / 2))
+           .force("collide", d3.forceCollide()
+              .radius(d => d.size + 10)
+              .iterations(2)
+           );
+
+        const link = svg.append("g")
+           .selectAll("line")
+           .data(links)
+           .join("line")
+           .attr("stroke", d => d.color || "#999")
+           .attr("stroke-width", d => d.width || 1.5)
+           .attr("stroke-dasharray", d => d.dash || null);
+
+        const node = svg.append("g")
+           .selectAll("circle")
+           .data(nodes)
+           .join("circle")
+           .attr("r", d => d.size)
+           .attr("fill", d => d.color)
+           .attr("stroke", "#fff")
+           .attr("stroke-width", 2)
+           .call(drag(simulation));
+
+        const label = svg.append("g")
+           .selectAll("text")
+           .data(nodes)
+           .join("text")
+           .text(d => d.id)
+           .attr("class", "node-label")
+           .attr("font-size", d => ({
+                "核心医家": 16,
+                "医学理念": 14,
+                "授业恩师": 14
+            }[d.type] || 12))
+           .style("font-weight", d => d.type === "核心医家" ? "600" : "400")
+           .style("fill", d => d3.color(d.color).darker(1));
+
+        simulation.on("tick", () => {
+            link.attr("x1", d => d.source.x)
+               .attr("y1", d => d.source.y)
+               .attr("x2", d => d.target.x)
+               .attr("y2", d => d.target.y);
+
+            node.attr("cx", d => d.x)
+               .attr("cy", d => d.y);
+
+            label.attr("x", d => d.x + d.size + 10)
+               .attr("y", d => d.y + 10);
+        });
+
+        function drag(simulation) {
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = clamp(event.x, validArea.xMin + event.subject.size, validArea.xMax - event.subject.size);
+                event.subject.fy = clamp(event.y, validArea.yMin + event.subject.size, validArea.yMax - event.subject.size);
+            }
+
+            function dragged(event) {
+                event.subject.fx = clamp(event.x, validArea.xMin + event.subject.size, validArea.xMax - event.subject.size);
+                event.subject.fy = clamp(event.y, validArea.yMin + event.subject.size, validArea.yMax - event.subject.size);
+            }
+
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+
+            return d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended);
+        }
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        // 悬浮提示交互
+        node.on("mouseover", function (event, d) {
+            const tooltip = d3.select(".tooltip");
+            const [x, y] = [event.clientX, event.clientY];
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+
+            let posX = x + 20;
+            let posY = y;
+
+            if (posX + 280 > winWidth) {
+                posX = x - 280 - 30;
+                tooltip.style("transform", "translate(-15px, -50%)")
+                   .style("right", winWidth - x + 15 + "px")
+                   .style("left", null);
+            } else {
+                tooltip.style("transform", "translate(15px, -50%)")
+                   .style("left", posX + "px")
+                   .style("right", null);
+            }
+
+            if (posY + 150 > winHeight) posY = winHeight - 150;
+
+            tooltip.style("opacity", 1)
+               .style("top", posY + "px")
+               .html(`<strong style="color:${d.color};font-size:16px;">${d.id}</strong>
+                         <hr>
+                         <div style="color:#666;">
+                           <em style="display:block;margin-bottom:6px;">${d.type}</em>
+                           ${d.desc}
+                         </div>`);
+
+            d3.select(this).transition().attr("r", d.size * 1.3).attr("stroke-width", 3);
+            link.style("opacity", l => (l.source === d || l.target === d) ? 1 : 0.2);
+            node.style("opacity", n => (n === d || links.some(l => l.source === n && l.target === d || l.source === d && l.target === n)) ? 1 : 0.2);
+            label.style("opacity", n => (n === d || links.some(l => l.source === n && l.target === d || l.source === d && l.target === n)) ? 1 : 0.2);
+        })
+       .on("mouseout", function () {
+            d3.select(this).transition().attr("r", d => d.size).attr("stroke-width", 2);
+            link.style("opacity", 1);
+            node.style("opacity", 1);
+            label.style("opacity", 1);
+            d3.select(".tooltip").style("opacity", 0);
+        });
+
+        // 医药配方悬浮提示交互
+        const recipeItems = document.querySelectorAll('.recipe-item');
+        const recipeTooltip = d3.select('.recipe-tooltip');
+        recipeItems.forEach(item => {
+            item.addEventListener('mouseover', function (event) {
+                const recipe = this.dataset.recipe;
+                const [x, y] = [event.clientX, event.clientY];
+                const winWidth = window.innerWidth;
+                const winHeight = window.innerHeight;
+
+                let posX = x + 20;
+                let posY = y;
+
+                if (posX + 400 > winWidth) {
+                    posX = x - 400 - 30;
+                    recipeTooltip.style("transform", "translate(-15px, -50%)")
+                       .style("right", winWidth - x + 15 + "px")
+                       .style("left", null);
+                } else {
+                    recipeTooltip.style("transform", "translate(15px, -50%)")
+                       .style("left", posX + "px")
+                       .style("right", null);
+                }
+
+                if (posY + 150 > winHeight) posY = winHeight - 150;
+
+                recipeTooltip.style("opacity", 1)
+                   .style("top", posY + "px")
+                   .html(`<h3>医药配方详情</h3><p>${recipe}</p>`);
+            });
+            item.addEventListener('mouseout', function () {
+                recipeTooltip.style("opacity", 0);
+            });
+        });
+
+        // 人物关系图历史记载悬浮提示交互
+        const historyItems = document.querySelectorAll('.history-item');
+        const historyTooltip = d3.select('.history-tooltip');
+        historyItems.forEach(item => {
+            item.addEventListener('mouseover', function (event) {
+                const history = this.dataset.history;
+                const [x, y] = [event.clientX, event.clientY];
+                const winWidth = window.innerWidth;
+                const winHeight = window.innerHeight;
+
+                let posX = x + 20;
+                let posY = y;
+
+                if (posX + 500 > winWidth) {
+                    posX = x - 500 - 30;
+ - 30;
+                    historyTooltip.style("transform", "translate(-15px, -50%)")
+                       .style("right", winWidth - x + 15 + "px")
+                       .style("left", null);
+                } else {
+                    historyTooltip.style("transform", "translate(15px, -50%)")
+                       .style("left", posX + "px")
+                       .style("right", null);
+                }
+
+                if (posY + 150 > winHeight) posY = winHeight - 150;
+
+                historyTooltip.style("opacity", 1)
+                   .style("top", posY + "px")
+                   .html(`<h3>历史记载详情</h3><p>${history}</p>`);
+            });
+            item.addEventListener('mouseout', function () {
+                historyTooltip.style("opacity", 0);
+            });
+        });
+
+        window.onresize = () => {
+            lifeChart.resize();
+            svg.attr("width", document.getElementById("network-container").offsetWidth);
+        };
+
+        setTimeout(() => {
+            simulation.alpha(0.1).restart();
+        }, 800);
+    </script>
+</body>
+</html>

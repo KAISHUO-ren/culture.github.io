@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>吴有性与《瘟疫论》</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'SimSun', serif;
+            background: linear-gradient(135deg, #f5f3e9 0%, #e0dac6 100%);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+       .container {
+            display: flex;
+            gap: 20px;
+            height: 90vh;
+        }
+
+       .left-panel {
+            width: 30%;
+            background: rgba(255, 251, 230, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            animation: slideInLeft 1s ease-in-out;
+            position: relative;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+       .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: slideInRight 1s ease-in-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+       .chart-section {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+       .chart-section:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+       .chart-section h3 {
+            color: #8b0000;
+            margin: 0 0 10px;
+        }
+
+       .chart-section p {
+            color: #555;
+            margin: 0 0 10px;
+        }
+
+       .chart-container {
+            flex: 1;
+            min-height: 200px;
+        }
+
+       .ancient-border {
+            border: 2px solid #8b5e3c;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+       .tooltip {
+            position: absolute;
+            padding: 8px;
+            background: #fff3e0;
+            border: 1px solid #d4b895;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 12px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+       .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            animation: rotateVideo 10s linear infinite alternate;
+        }
+
+        @keyframes rotateVideo {
+            from {
+                transform: rotate(-2deg);
+            }
+            to {
+                transform: rotate(2deg);
+            }
+        }
+
+       .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+       .sparkle {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: #ffd700;
+            border-radius: 50%;
+            animation: sparkle 1s infinite;
+        }
+
+        @keyframes sparkle {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+       .floating-text {
+            position: absolute;
+            font-size: 18px;
+            color: #8b0000;
+            pointer-events: none;
+            animation: floatText 10s linear infinite;
+        }
+
+        @keyframes floatText {
+            0% {
+                transform: translateY(0);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh);
+                opacity: 0;
+            }
+        }
+
+       .timeline {
+            position: relative;
+            padding: 20px 0;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+       .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 10px;
+            width: 2px;
+            height: 100%;
+            background: #8b5e3c;
+        }
+
+       .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            padding-left: 30px;
+            animation: fadeInTimeline 1s ease-in-out;
+        }
+
+        @keyframes fadeInTimeline {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+       .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 3px;
+            width: 12px;
+            height: 12px;
+            background: #8b0000;
+            border-radius: 50%;
+        }
+
+       .timeline-item h4 {
+            margin: 0;
+            color: #8b0000;
+        }
+
+       .timeline-item p {
+            margin: 5px 0 0;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h2 style="color: #8b0000;">吴有性与《瘟疫论》</h2>
+            <p>吴有性，字又可，生活在明末清初的江苏吴县，是中国古代杰出的温病学家。在当时瘟疫横行、传统医学对疫病认识不足的背景下，吴有性通过深入观察和临床实践，撰写了《瘟疫论》一书。这本书是中国第一部系统研究急性传染病的医学著作，对后世温病学说的发展产生了深远影响。</p>
+            <div class="ancient-border">
+                <img src="images/吴有性.jpg" style="width:100%;height:400px;object-fit: cover;border-radius:5px;">
+            </div>
+            <h3>核心贡献</h3>
+            <p>吴有性在《瘟疫论》中提出了诸多具有开创性的理论和方法，对古代医学的发展做出了巨大贡献。以下是他的一些核心贡献：</p>
+            <div class="ancient-border">
+                <ul>
+                    <li>📜 成书时间：1642年，在当时疫病肆虐的环境下，吴有性积数十年经验著成此书。</li>
+                    <li>🦠 提出"戾气"学说，打破了传统的病因观念，认为瘟疫是由一种特殊的“戾气”所引起。</li>
+                    <li>🌿 记载抗疫药方58则，这些药方在当时的疫病治疗中发挥了重要作用，为后世临床用药提供了宝贵经验。</li>
+                    <li>⚕️ 区分伤寒与温病，明确了两者在病因、病理和治疗方法上的不同，纠正了以往的混淆。</li>
+                    <li>📖 首创"疠气"致病理论，强调疠气是导致疫病流行的根源，为传染病的防治提供了新的思路。</li>
+                </ul>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="video-container">
+                <video autoplay muted loop>
+                    <source src="images/吴有性.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>1582年</h4>
+                    <p>吴有性生于江苏吴县</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>1621年</h4>
+                    <p>开始行医生涯</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>1642年</h4>
+                    <p>完成《瘟疫论》</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>1652年</h4>
+                    <p>学术思想传播</p>
+                </div>
+            </div>
+            <div class="chart-section">
+                <h3>瘟疫传播路径桑基图</h3>
+                <p>此桑基图展示了吴有性在《瘟疫论》中所描述的瘟疫传播路径。从“戾气”的产生，到通过“口鼻入侵”人体，再经过“表证阶段”“半表半里”“里证阶段”，最终进入“恢复期”。通过桑基图的可视化展示，能够清晰地看到每个阶段之间的关系和传播的比例。</p>
+                <div class="chart-container" id="sankey-container"></div>
+            </div>
+            <div class="chart-section">
+                <h3>《瘟疫论》理论体系树状图及时间轴</h3>
+                <p>树状图呈现了《瘟疫论》的理论体系，包括“病因学说”“病理学说”“治法体系”等方面的内容，直观地展示了各部分之间的层级关系。下方的交互式时间轴则记录了吴有性的生平重要事件，通过鼠标悬停在时间点上，可以了解到相应的事件信息。</p>
+                <div class="chart-container" id="tree-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" style="opacity: 0;"></div>
+
+    <!-- 随机添加一些闪烁元素 -->
+    <div class="sparkle" style="top: 10%; left: 20%;"></div>
+    <div class="sparkle" style="top: 30%; left: 50%;"></div>
+    <div class="sparkle" style="top: 60%; left: 80%;"></div>
+
+    <!-- 添加悬浮字 -->
+    <div class="floating-text" style="left: 10%; top: 100vh;">戾气致病</div>
+    <div class="floating-text" style="left: 30%; top: 100vh;">瘟疫根源</div>
+    <div class="floating-text" style="left: 50%; top: 100vh;">医论经典</div>
+    <div class="floating-text" style="left: 70%; top: 100vh;">抗疫有方</div>
+
+    <script>
+        // 桑基图数据 - 瘟疫传播路径
+        const sankeyOption = {
+            tooltip: { trigger: 'item' },
+            series: [{
+                type:'sankey',
+                layout: 'none',
+                data: [
+                    { name: '戾气', itemStyle: { color: '#c53d27' } },
+                    { name: '口鼻入侵', itemStyle: { color: '#e68a36' } },
+                    { name: '表证阶段', itemStyle: { color: '#f5d300' } },
+                    { name: '半表半里', itemStyle: { color: '#90b44b' } },
+                    { name: '里证阶段', itemStyle: { color: '#2d6d4b' } },
+                    { name: '恢复期', itemStyle: { color: '#1e88a8' } }
+                ],
+                links: [
+                    { source: '戾气', target: '口鼻入侵', value: 10 },
+                    { source: '口鼻入侵', target: '表证阶段', value: 8 },
+                    { source: '表证阶段', target: '半表半里', value: 6 },
+                    { source: '半表半里', target: '里证阶段', value: 4 },
+                    { source: '里证阶段', target: '恢复期', value: 3 },
+                    { source: '半表半里', target: '恢复期', value: 2 }
+                ],
+                lineStyle: { color:'source', curveness: 0.3 },
+                label: { fontSize: 14 }
+            }]
+        };
+
+        // 树状图数据 - 理论体系
+        const treeData = {
+            name: "瘟疫论体系",
+            children: [
+                {
+                    name: "病因学说",
+                    children: [
+                        { name: "戾气致病", value: 20 },
+                        { name: "非风非寒", value: 15 },
+                        { name: "口鼻传入", value: 15 }
+                    ]
+                },
+                {
+                    name: "病理学说",
+                    children: [
+                        { name: "表里传变", value: 18 },
+                        { name: "气血运行", value: 12 },
+                        { name: "毒邪内陷", value: 10 }
+                    ]
+                },
+                {
+                    name: "治法体系",
+                    children: [
+                        { name: "透达膜原", value: 25 },
+                        { name: "分消走泄", value: 20 },
+                        { name: "扶正祛邪", value: 15 }
+                    ]
+                }
+            ]
+        };
+
+        // 初始化桑基图
+        const sankeyChart = echarts.init(document.getElementById('sankey-container'));
+        sankeyChart.setOption(sankeyOption);
+
+        // 初始化树状图
+        const treeChart = echarts.init(document.getElementById('tree-container'));
+        treeChart.setOption({
+            tooltip: { trigger: 'item' },
+            series: [{
+                type: 'tree',
+                data: [treeData],
+                layout: 'radial',
+                symbolSize: 20,
+                label: {
+                    position: 'left',
+                    verticalAlign:'middle',
+                    align: 'right',
+                    fontSize: 12
+                },
+                leaves: {
+                    label: { position: 'right' }
+                },
+                itemStyle: {
+                    color: '#d99694',
+                    borderColor: '#8b5e3c'
+                },
+                lineStyle: {
+                    color: '#8b5e3c',
+                    width: 2,
+                    curveness: 0.1
+                },
+                expandAndCollapse: false,
+                animationDuration: 550
+            }]
+        });
+
+        // 交互式时间轴
+        const timelineData = [
+            { year: 1582, event: "生于江苏吴县", y: 50 },
+            { year: 1621, event: "开始行医生涯", y: 120 },
+            { year: 1642, event: "完成《瘟疫论》", y: 200 },
+            { year: 1652, event: "学术思想传播", y: 280 }
+        ];
+
+        const timelineSvg = d3.select("#tree-container")
+           .append("svg")
+           .attr("width", "100%")
+           .attr("height", 100)
+           .style("position", "absolute")
+           .style("bottom", "20px");
+
+        timelineSvg.selectAll("circle")
+           .data(timelineData)
+           .enter()
+           .append("circle")
+           .attr("cx", (d, i) => 100 + i * 250)
+           .attr("cy", 50)
+           .attr("r", 8)
+           .attr("fill", "#8b0000")
+           .on("mouseover", function (event, d) {
+                d3.select(".tooltip")
+                   .style("opacity", 1)
+                   .html(`<strong>${d.year}</strong><br>${d.event}`)
+                   .style("left", `${event.pageX}px`)
+                   .style("top", `${event.pageY}px`);
+            })
+           .on("mouseout", () => d3.select(".tooltip").style("opacity", 0));
+
+        // 响应式调整
+        window.onresize = () => {
+            sankeyChart.resize();
+            treeChart.resize();
+        };
+    </script>
+</body>
+
+</html>    

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国古代医学家图</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(-45deg, #f8f9fa, #e9ecef, #dee2e6, #ced4da);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            font-family: "Microsoft YaHei", sans-serif;
+            overflow: auto; /* 修改这里，允许滚动 */
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin: 30px 0;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: titleFade 1s ease-out;
+        }
+
+        @keyframes titleFade {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        #canvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .name-link {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            text-decoration: none;
+            color: #34495e;
+            font-size: 20px;
+            font-weight: 600;
+            transition: all 0.3s;
+            z-index: 2;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .name-link:hover {
+            color: #e74c3c;
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        #tooltip {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.97);
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            padding: 15px 20px;
+            min-width: 250px;
+            max-width: 350px;
+            pointer-events: none;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 999;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        #tooltip div:first-child {
+            color: #3498db;
+            font-size: 18px !important;
+            margin-bottom: 10px !important;
+            font-weight: bold;
+        }
+
+        /* 星光花瓣样式 */
+        .star-petal {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: url('hua');
+            background-size: cover;
+            pointer-events: none;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-10vh);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(110vh);
+            }
+        }
+
+        /* 新增悬浮元素样式 */
+        .floating-element {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(52, 152, 219, 0.3);
+            pointer-events: none;
+            animation: float 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(20px, 20px);
+            }
+        }
+
+        /* 画布内花瓣样式 */
+        .canvas-petal {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: url('https://dummyimage.com/15x15/ff69b4/000000');
+            background-size: cover;
+            pointer-events: none;
+            animation: canvas-fall 5s linear infinite;
+        }
+
+        @keyframes canvas-fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-20px) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(800px) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>中国古代部分医学家概述图</h1>
+        <span style="color: hsl(0, 53%, 71%); font-size: 15px;">以下是部分中国古代医学家，他们对我国医学发展起到了极大的推动作用，鼠标到红点可显示简介，点击名字可进入超链接</span>
+        <div class="canvas-wrapper">
+            <canvas id="canvas" width="800" height="800"></canvas>
+            <div id="nameLinks"></div>
+            <div id="tooltip"></div>
+            <div id="canvas-petals"></div>
+        </div>
+    </div>
+    <div id="star-petals"></div>
+    <div id="floating-elements"></div>
+
+    <script>
+        const agronomists = [
+            { name: '扁鹊', dynasty: '战国', insights: '著有《难经》等，擅长各科医术，奠定中医切脉诊断方法。', url: '2扁鹊.html' },
+            { name: '华佗', dynasty: '东汉', insights: '发明麻沸散，擅长外科手术，被尊为外科鼻祖。', url: '2华佗.html' },
+            { name: '张仲景', dynasty: '东汉', insights: '著有《伤寒杂病论》，确立辨证论治原则，被称为医圣。', url: '2张仲景.html' },
+            { name: '葛洪', dynasty: '东晋', insights: '著有《肘后备急方》，记载多种疾病的治疗方法。', url: '2葛洪.html' },
+            { name: '孙思邈', dynasty: '唐朝', insights: '著有《千金要方》和《千金翼方》，被尊为药王。', url: '2孙思邈.html' },
+            { name: '李时珍', dynasty: '明朝', insights: '著有《本草纲目》，对本草学进行全面整理总结。', url: '2李时珍.html' },
+            { name: '吴有性', dynasty: '明朝', insights: '著有《温疫论》，对瘟疫的病因、病机等有独到见解。', url: '2吴有性.html' },
+            { name: '叶天士', dynasty: '清朝', insights: '创立卫气营血辨证论治理论，对温病学贡献巨大。', url: '2叶天士.html' },
+            { name: '王清任', dynasty: '清朝', insights: '著有《医林改错》，重视解剖学，对瘀血证有深入研究。', url: '2王清任.html' }
+        ];
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const tooltip = document.getElementById('tooltip');
+        const nameLinks = document.getElementById('nameLinks');
+        const baseRadius = 300; // 节点分布半径
+        const canvasPetals = document.getElementById('canvas-petals');
+        const numCanvasPetals = 20;
+
+        // 绘制基础图形
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 中心文字
+            ctx.save();
+            ctx.font = 'bold 68px 楷体';
+            ctx.fillStyle = '#3498db';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('医  学', 400, 400);
+            ctx.restore();
+
+            // 节点和连线
+            const center = { x: 400, y: 400 };
+            const angleStep = (Math.PI * 2) / agronomists.length;
+
+            agronomists.forEach((_, index) => {
+                const angle = angleStep * index - Math.PI / 2;
+                const x = center.x + Math.cos(angle) * baseRadius;
+                const y = center.y + Math.sin(angle) * baseRadius;
+
+                // 连线
+                ctx.beginPath();
+                ctx.moveTo(center.x, center.y);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = 'rgba(52, 152, 219, 0.25)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // 节点
+                ctx.beginPath();
+                ctx.arc(x, y, 12, 0, Math.PI * 2);
+                ctx.fillStyle = '#e74c3c';
+                ctx.fill();
+                ctx.strokeStyle = '#c0392b';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+        }
+
+        // 创建链接
+        function createLinks() {
+            const center = { x: 400, y: 400 };
+            const angleStep = (Math.PI * 2) / agronomists.length;
+
+            nameLinks.innerHTML = agronomists.map((person, index) => {
+                const angle = angleStep * index - Math.PI / 2;
+                const x = center.x + Math.cos(angle) * baseRadius;
+                const y = center.y + Math.sin(angle) * baseRadius;
+                const offset = angle % (Math.PI * 2) > Math.PI ? -40 : 40;
+
+                return `<a class="name-link" href="${person.url}" 
+                         style="left: ${x + offset}px; top: ${y}px;">${person.name}</a>`;
+            }).join('');
+        }
+
+        // 对称定位提示框
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            agronomists.forEach((person, index) => {
+                const angle = (Math.PI * 2 / agronomists.length) * index - Math.PI / 2;
+                const nodeX = 400 + Math.cos(angle) * baseRadius;
+                const nodeY = 400 + Math.sin(angle) * baseRadius;
+
+                if (Math.hypot(mouseX - nodeX, mouseY - nodeY) < 15) {
+                    // 计算页面坐标
+                    const scaleX = rect.width / canvas.width;
+                    const scaleY = rect.height / canvas.height;
+                    const pageX = rect.left + nodeX * scaleX;
+                    const pageY = rect.top + nodeY * scaleY;
+
+                    // 获取提示框尺寸
+                    tooltip.innerHTML = `
+                        <div>
+                            ${person.name}
+                            <span style="color: #95a5a6; font-size: 0.8em;">（${person.dynasty}）</span>
+                        </div>
+                        <div style="color: #7f8c8d;">${person.insights}</div>
+                    `;
+                    tooltip.style.display = 'block';
+                    const tooltipRect = tooltip.getBoundingClientRect();
+
+                    // 对称定位算法
+                    const angleDeg = angle * (180 / Math.PI);
+                    const offsetDistance = 50; // 提示框与节点间距
+
+                    // 计算提示框坐标
+                    const tipAngle = angle + Math.PI / 2; // 垂直外移
+                    const tipX = pageX + Math.cos(tipAngle) * offsetDistance;
+                    const tipY = pageY + Math.sin(tipAngle) * offsetDistance;
+
+                    // 边界检测
+                    const padding = 20;
+                    let finalX = tipX;
+                    let finalY = tipY - tooltipRect.height / 2;
+
+                    // 水平边界
+                    if (finalX < padding) finalX = padding;
+                    if (finalX + tooltipRect.width > window.innerWidth - padding) {
+                        finalX = window.innerWidth - tooltipRect.width - padding;
+                    }
+
+                    // 垂直边界
+                    if (finalY < padding) finalY = padding;
+                    if (finalY + tooltipRect.height > window.innerHeight - padding) {
+                        finalY = window.innerHeight - tooltipRect.height - padding;
+                    }
+
+                    tooltip.style.left = `${finalX}px`;
+                    tooltip.style.top = `${finalY}px`;
+                    tooltip.style.opacity = 1;
+                }
+            });
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = 0;
+        });
+
+        // 初始化
+        draw();
+        createLinks();
+
+        // 星光花瓣动画
+        const starPetals = document.getElementById('star-petals');
+        const numPetals = 50;
+
+        function createStarPetal() {
+            const petal = document.createElement('div');
+            petal.classList.add('star-petal');
+            petal.style.left = `${Math.random() * window.innerWidth}px`;
+            petal.style.animationDuration = `${Math.random() * 10 + 5}s`;
+            petal.style.animationDelay = `${Math.random() * 5}s`;
+            starPetals.appendChild(petal);
+
+            setTimeout(() => {
+                petal.remove();
+            }, (parseFloat(petal.style.animationDuration) + parseFloat(petal.style.animationDelay)) * 1000);
+        }
+
+        for (let i = 0; i < numPetals; i++) {
+            setTimeout(createStarPetal, i * 200);
+        }
+
+        setInterval(createStarPetal, 200);
+
+        // 新增悬浮元素动画
+        const floatingElements = document.getElementById('floating-elements');
+        const numFloatingElements = 20;
+
+        function createFloatingElement() {
+            const element = document.createElement('div');
+            element.classList.add('floating-element');
+            element.style.left = `${Math.random() * window.innerWidth}px`;
+            element.style.top = `${Math.random() * window.innerHeight}px`;
+            element.style.animationDuration = `${Math.random() * 10 + 5}s`;
+            element.style.animationDelay = `${Math.random() * 5}s`;
+            floatingElements.appendChild(element);
+
+            setTimeout(() => {
+                element.remove();
+            }, (parseFloat(element.style.animationDuration) + parseFloat(element.style.animationDelay)) * 1000);
+        }
+
+        for (let i = 0; i < numFloatingElements; i++) {
+            setTimeout(createFloatingElement, i * 300);
+        }
+
+        setInterval(createFloatingElement, 300);
+
+        // 画布内花瓣动画
+        function createCanvasPetal() {
+            const petal = document.createElement('div');
+            petal.classList.add('canvas-petal');
+            petal.style.left = `${Math.random() * 800}px`;
+            petal.style.animationDuration = `${Math.random() * 3 + 3}s`;
+            petal.style.animationDelay = `${Math.random() * 2}s`;
+            canvasPetals.appendChild(petal);
+
+            setTimeout(() => {
+                petal.remove();
+            }, (parseFloat(petal.style.animationDuration) + parseFloat(petal.style.animationDelay)) * 1000);
+        }
+
+        for (let i = 0; i < numCanvasPetals; i++) {
+            setTimeout(createCanvasPetal, i * 300);
+        }
+
+        setInterval(createCanvasPetal, 300);
+    </script>
+</body>
+
+</html>
